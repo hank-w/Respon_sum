@@ -23,6 +23,8 @@ Could request access from UW, but until, then, let's roll our own.
 
 ## Student UI
 
+Docker? Native app?
+
 HTML, Javascript, React for webapp, eventually.
 iclicker
 potentially allow results to be shown to students (instructor's choice)
@@ -47,6 +49,10 @@ Features:
 * settings
 * Contact for assistance -> to Ryan and Hank's email
 
+* have option to store question and answers/correct answer (or at least identifying information), and option
+  to make visible to students
+* also have a popup UI to display the question so the instructor doesn't have to enter it twice
+
 Design:
 * single-page application (SPA)
 * nice, smooth flow
@@ -57,4 +63,124 @@ Later down the line:
 * Give chance to share and received shared results from past classes (in graphs and percent/line graphs) Opt-in feature
 * Line graphs of class performance/participation over time
 * Can tailor the difficulty and type of questions to best
+* API for scraping powerpoints/google slides for questions
 
+## Database
+
+// login info omitted
+
+Records: student, instructor, class, questions, responses
+
+Terminology: response is the object generated when a student clicks e.g. A,
+and "answer" is the option out of 5 or so they click.
+
+Student:
+{
+  ID: UUID
+  name: string
+  email: string
+  student number: const string ("anonymous")
+  institution: string
+
+  ( other identifying info we ask for on sign up )
+  current classes: [ class ids ]
+  prior classes: [ class ids ]  (Student inherits Class, vars questions right,wrong,unanswered,etc.)
+  
+  class id to performance: { map of class id to StudentPerformance }
+  
+  overall performance: StudentPerformance
+  
+  responses: [ response ids ]
+}
+
+object StudentPerformance: // stores aggregate data per student
+{
+  num correct responses: int
+  num wrong responses: int
+  total num responses: int // or num didn't answer?
+  rank: { position: int, out of: int }
+  operator +(const & other){
+      return
+  }
+}
+
+Instructor:
+{
+  ID: UUID
+  name: string
+  email: string
+  institution: string
+  ( other identifying info )
+  
+  currently owned classes: [ class ids ]
+  prior owned classes: [ class ids ]
+  
+  **(if question format, store question and possible reponses)
+  questions: [ question ids ] (%correct, %answered,)
+}
+
+Class:
+{
+  ID: uuid
+  active: boolean
+  instructors: [ instructor ids ]
+  students: [ student ids ]
+  questions: [ question ids ]
+  all responses: [ response ids ]
+  stats: QuestionStats
+}
+
+Question:
+{
+  ID: uuid
+  class: class id
+  
+  asked: boolean // if false, saved but not yet asked
+  
+  ( if asked )
+  started timestamp: datetime // we can compare these to response timestamps
+  stopped timestamp: datetime // to deny responses registered out of the question's period
+  
+  responses: [ response ids ] (from id we can extract answer)
+  
+  type: QuestionType
+  
+  stats: QuestionStats
+  
+  ( these fields appear if type == MULTIPLE_CHOICE )
+  num answers: int  (could potentially be a fill in the blank, string answer)
+  correct answer: int
+  num unanswered: int
+  ( these are optional )
+  question text: string
+  answer texts: [ string ] // order important
+  
+  ( these fields appear if type == SHORT_ANSWER )
+  correct answer: string
+}
+
+object QuestionStats {
+  num answered: int
+  num correct: int
+  num didn't answer: int
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE, SHORT_ANSWER,
+}
+
+Response:
+{
+  ID: uuid
+  timestamp: datetime
+  student: student id
+  class: class id
+  question: question id
+  correct: boolean
+  
+  ( if the question's type is MULTIPLE_CHOICE )
+  answer number: int
+  
+  ( if the question's type is SHORT_ANSWER )
+  answer text: string
+}
