@@ -1,0 +1,109 @@
+#%RAML 1.0
+---
+title: Respon_sum API
+baseUri: localhost/{version}
+version: v1
+
+# Authentication omitted
+
+types: 
+  studentModify: |
+    {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-03/schema",
+      "id": "http://jsonschema.net",
+      "required": true",
+      "properties": {
+        "name": {
+          "type": "string",
+          "required": "true" 
+        },
+        "email": {
+          "type": "string",
+          "required": "true"
+        },
+        "studentNumber": {
+          "type": "string",
+          "required": "true"
+        },
+        "institution": {
+          "type": "string",
+          "required": "true"
+        }
+      }
+    }
+
+/students:
+  description: Collection of all registered students.
+  post:
+    description: Create a new student.
+    body:
+      application/json:
+        type: studentModify
+  /{studentId}: # an ID from the database 
+    get:
+    put:
+      description:
+      body:
+        application/json:
+          type: studentModify
+    delete:
+    /responses:
+      get:
+    /current-classes:
+      get:
+    /past-classes:
+      get:
+
+/instructors:
+  description: Collection of all registered instructors.
+  post:
+    description: Create a new instructor.
+  /{instructorId}:
+    get:
+    put:
+      description: update instructor info: name, email.
+    delete:
+    /questions:
+      get:
+    /current-classes:
+      get:
+    /past-classes:
+      get:
+
+/classes:
+  get:
+  post: # only accessible by instructors
+  /{classId}:
+    get:
+    put:
+    delete:
+    /active:
+      get:
+      put:
+    /instructors:
+      get:
+      post:
+      /{instructorId}:
+        delete:
+    /students:
+      get:
+      post:
+      /{studentId}:
+        delete:
+        /performance:
+          get:
+    /responses:
+      get:
+
+/questions:
+  post:
+  /{questionId}:
+    get:
+    put:
+    delete:
+    /responses:
+      get:
+      /{studentId}:
+        put:
+        delete:

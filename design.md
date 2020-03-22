@@ -127,7 +127,7 @@ Class:
   students: [ student ids ]
   questions: [ question ids ]
   all responses: [ response ids ]
-  stats: QuestionStats
+  aggregate stats: QuestionStats
 }
 
 Question:
@@ -176,6 +176,8 @@ Response:
   student: student id
   class: class id
   question: question id
+  
+  ( optional )
   correct: boolean
   
   ( if the question's type is MULTIPLE_CHOICE )
