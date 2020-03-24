@@ -1,5 +1,5 @@
 # Respon_sum
-educational classroom software product.
+Educational Classroom Software Product.
 
 Hi! Thanks for stopping by =)
 We are a team of two software developers from UWaterloo trying to make some helpful educational class software for our classmates and professors. 
