@@ -38,6 +38,8 @@ Use mobile for GPS location services.
 Quick android prototype, then port to Flutter.(Flutter supports both android and IOS, can convert to both)
 Note: In future consider support for laptops
 
+Have a drop-down for institution selection.
+
 ## Instructor UI
 
 HTML/CSS/JS/React webapp.
@@ -93,11 +95,12 @@ Student:
   responses: [ response ids ]
 }
 
+// schema layout
 object StudentPerformance: // stores aggregate data per student
 {
   num correct responses: int
-  num wrong responses: int
-  total num responses: int // or num didn't answer?
+  num incorrect responses: int
+  num didn't answer: int
   rank: { position: int, out of: int }
   operator +(const & other){
       return
@@ -122,6 +125,7 @@ Instructor:
 Class:
 {
   ID: uuid
+  name: string
   active: boolean
   instructors: [ instructor ids ]
   students: [ student ids ]

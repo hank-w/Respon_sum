@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id" : "http://jsonschema.net",
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "answerNumber": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    {
+      "properties": {
+        "answerText": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

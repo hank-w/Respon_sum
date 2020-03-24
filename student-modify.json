@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id": "http://jsonschema.net",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "studentNumber": {
+      "type": "string"
+    },
+    "institution": {
+      "type": "string"
+    }
+  },
+  "required": ["name", "email", "studentNumber", "institution"],
+  "additionalProperties": false
+}

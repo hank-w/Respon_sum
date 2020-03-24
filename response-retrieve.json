@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id": "http://jsonschema.net",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "studentId": {
+      "type": "string"
+    },
+    "classId": {
+      "type": "string"
+    },
+    "questionId": {
+      "type": "string"
+    },
+    "questionType": {
+      "type": "string",
+      "enum": ["multiple-choice", "short-answer"]
+    },
+    "correct": {
+      "type": "boolean"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "answerNumber": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["answerNumber"]
+    },
+    {
+      "properties": {
+        "answerText": {
+          "type": "string"
+        }
+      },
+      "required": ["answerText"]
+    }
+  ],
+  "required": ["id", "timestamp", "studentId", "classId", "questionId", "questionType"],
+  "additionalProperties": false
+}

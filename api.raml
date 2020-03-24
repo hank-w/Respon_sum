@@ -6,32 +6,41 @@ version: v1
 
 # Authentication omitted
 
-types: 
-  studentModify: |
-    {
-      "type": "object",
-      "$schema": "http://json-schema.org/draft-03/schema",
-      "id": "http://jsonschema.net",
-      "required": true",
-      "properties": {
-        "name": {
-          "type": "string",
-          "required": "true" 
-        },
-        "email": {
-          "type": "string",
-          "required": "true"
-        },
-        "studentNumber": {
-          "type": "string",
-          "required": "true"
-        },
-        "institution": {
-          "type": "string",
-          "required": "true"
-        }
-      }
-    }
+types:
+  studentRetrieve: !include student-retrieve.json
+  studentModify: !include student-modify.json
+  instructorRetrieve: !include instructor-retrieve.json
+  instructorModify: !include instructor-modify.json
+  classRetrieve: !include class-retrieve.json
+  classModify: !include class-modify.json
+
+traits:
+  orderable:
+    queryParameters:
+      orderBy:
+        description: Order by field: <<fields>>.
+        enum: <<fields>>
+        default: <<default>>
+        required: false
+      order:
+        description: Order
+        enum: [desc, asc]
+        default: desc
+        required: false
+  pageable:
+    queryParameters:
+      offset:
+        description: Skip over a number of elements by specifying an offset value for the query.
+        type: integer
+        required: false
+        example: 20
+        default: 0
+      limit:
+        description: Limit the number of elements on the response.
+        type: integer
+        required: false
+        example: 80
+        default: 10
 
 /students:
   description: Collection of all registered students.
@@ -42,38 +51,117 @@ types:
         type: studentModify
   /{studentId}: # an ID from the database 
     get:
+      description: Get information about a student.
+      responses:
+        200:
+          body:
+            application/json:
+              type: studentRetrieve
     put:
-      description:
+      description: Update a student's information.
       body:
         application/json:
           type: studentModify
     delete:
+      description: Delete a student account.
     /responses:
+      description: A list of all the responses the student has ever made.
       get:
+        description: |
+          Get the paginated list of responses made by the student.
+          If ordering by "correct", "wrong", or "unresponded", responses matching the criteria
+          will be placed at the top. Then, they will be sorted by type of response in one batch.
+          Within each batch, they will be sorted by recency.
+        is:
+          - pageable
+          - orderable: {fields: ["recency", "correct", "wrong", "unresponded"], default: "recency"}
+        body:
+          application/json:
+            type: |
+              
     /current-classes:
-      get:
+      type: id-list
+      description: A list of active classes in which the student is currently registered.
     /past-classes:
-      get:
-
+      type: id-list
+      description: A list of inactive classes in which the student was previously registered.
+    
 /instructors:
   description: Collection of all registered instructors.
   post:
     description: Create a new instructor.
+    body:
+      application/json:
+        type: instructorModify
   /{instructorId}:
     get:
+      description: Get information about an instructor.
+      responses:
+        200:
+          application/json:
+            type: instructorRetrieve
     put:
-      description: update instructor info: name, email.
+      description: Update an instructor's information.
+      body:
+        application/json:
+          type: instructorModify
     delete:
+      description: Delete an instructor account.
     /questions:
+      description: A list of all questions the instructor has ever asked.
       get:
+        description: Get the paginated list of questions asked by the instructor.
     /current-classes:
-      get:
+      type: id-list
+      description: A list of all active classes currently owned by the instructor.
     /past-classes:
-      get:
+      type: id-list
+      description: A list of all inactive classes previously owned by the instructor.
 
 /classes:
+  description: Collection of all classes, active and inactive.
   get:
-  post: # only accessible by instructors
+    # TODO - pagination?
+    description: Get a list of all classes.
+    queryParameters: 
+      active:
+        description: |
+          Specifies whether to filter active classes. If true, filter for active classes;
+          if false, filter for inactive classes; if not specified, do not filter.
+        displayName: Active
+        type: boolean
+        required: false
+      institution:
+        description: |
+          Institution for which to filter results. Must match, suggested. Drop down, can type for auto.
+        displayName: Institution
+        type: string
+        required: false
+      searchText:
+        description: |
+          Text to search for in class data. Matches instructor and class names.
+        displayName: Search text
+        type: string
+        required: false
+      top:
+        description: Number of top search results to return. Maximum is 40.
+        displayName: Top
+        type: integer
+        required: false
+    responses:
+      200:
+        application/json:
+          type: |
+            {
+              "type": "array",
+              "$schema": "http://json-schema.org/draft-04/schema",
+              "id": "http://jsonschema.net",
+              "items": {
+                "$ref": "class-retrieve.json"
+              }
+            }
+  post:
+    
   /{classId}:
     get:
     put:
@@ -105,5 +193,6 @@ types:
     /responses:
       get:
       /{studentId}:
+        get:
         put:
         delete:
