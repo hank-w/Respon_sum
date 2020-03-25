@@ -88,23 +88,11 @@ Student:
   current classes: [ class ids ]
   prior classes: [ class ids ]  (Student inherits Class, vars questions right,wrong,unanswered,etc.)
   
-  class id to performance: { map of class id to StudentPerformance }
+  class id to performance: { map of class id to Stats }
   
-  overall performance: StudentPerformance
+  overall performance: Stats
   
   responses: [ response ids ]
-}
-
-// schema layout
-object StudentPerformance: // stores aggregate data per student
-{
-  num correct responses: int
-  num incorrect responses: int
-  num didn't answer: int
-  rank: { position: int, out of: int }
-  operator +(const & other){
-      return
-  }
 }
 
 Instructor:
@@ -139,33 +127,38 @@ Question:
   ID: uuid
   class: class id
   
-  asked: boolean // if false, saved but not yet asked
+  asked: int
   
-  ( if asked )
-  started timestamp: datetime // we can compare these to response timestamps
-  stopped timestamp: datetime // to deny responses registered out of the question's period
+  timestamps: [ // length equal to asked
+    {
+      started timestamp: datetime
+      stopped timestamp: datetime
+    }
+  ]
   
   responses: [ response ids ] (from id we can extract answer)
   
+  viewableByStudents: boolean
+  
   type: QuestionType
   
-  stats: QuestionStats
+  stats: Stats[] // length equal to asked
   
   ( these fields appear if type == MULTIPLE_CHOICE )
-  num answers: int  (could potentially be a fill in the blank, string answer)
-  correct answer: int
-  num unanswered: int
+  num answers: int
   ( these are optional )
+  correct answer: int
   question text: string
   answer texts: [ string ] // order important
   
   ( these fields appear if type == SHORT_ANSWER )
+  ( optional )
   correct answer: string
 }
 
-object QuestionStats {
-  num answered: int
+object Stats {
   num correct: int
+  num incorrect: int
   num didn't answer: int
 }
 

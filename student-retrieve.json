@@ -1,6 +1,6 @@
 {
   "type": "object",
-  "$schema": "http://json-schema.org/draft-04/schema",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "id": "http://jsonschema.net",
   "properties": {
     "id": {
@@ -19,20 +19,7 @@
       "type": "string"
     },
     "performance": {
-      "type": "object",
-      "properties": {
-        "numCorrect": {
-          "type": "integer"
-        },
-        "numIncorrect": {
-          "type": "integer"
-        },
-        "numUnresponded": {
-          "type": "integer"
-        }
-      },
-      "required": ["numCorrect", "numIncorrect", "numUnresponded"],
-      "additionalProperties": false
+      "$ref": "stats.json"
     }
   },
   "required": ["id", "name", "studentNumber", "institution", "performance"],

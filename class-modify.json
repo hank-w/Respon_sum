@@ -1,6 +1,6 @@
 {
   "type": "object",
-  "$schema": "http://json-schema.org/draft-04/schema",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "id": "http://jsonschema.net",
   "properties": {
     "name": {
@@ -8,6 +8,13 @@
     },
     "active": {
       "type": "boolean"
+    },
+    "instructorIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
     }
   },
   "required": ["active"],

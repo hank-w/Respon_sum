@@ -1,0 +1,80 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "id": "http://jsonschema.net",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "asked": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "timestamps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "started": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "stopped": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["started", "stopped"],
+        "additionalProperties": false
+      }
+    },
+    "stats": {
+      "type": "array",
+      "items": {
+        "$ref": "stats.json"
+      }
+    },
+    "questionText": {
+      "type": "string"
+    }
+  },
+  "required": ["id", "asked", "timestamps", "stats"],
+  "oneOf": [
+    {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "multiple-choice" 
+        },
+        "numAnswers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "correctAnswer":{
+          "type": "integer",
+          "minimum": 0
+        },
+        "answerTexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["type", "numAnswers"]
+    },
+    {
+      "properties": {
+          "type": {
+            "type": "string",
+            "const": "short-answer"
+          },
+          "correctAnswer": {
+            "type": "string"
+          }
+      },
+      "required": ["type"]
+    } 
+  ],
+  "additionalProperties": false
+}

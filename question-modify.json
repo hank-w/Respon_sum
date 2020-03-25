@@ -1,0 +1,48 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "id": "http://jsonschema.net",
+  "properties": {
+    "questionText": {
+      "type": "string"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "multiple-choice"
+        },
+        "numAnswers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "correctAnswer": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "answerTexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["type", "numAnswers"]
+    },
+    {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "short-answer"
+        },
+        "correctAnswer": {
+          "type": "string"
+        }
+      },
+      "required": ["type"]
+    }
+  ],
+  "additionalProperties": false
+}

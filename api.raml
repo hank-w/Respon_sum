@@ -13,8 +13,19 @@ types:
   instructorModify: !include instructor-modify.json
   classRetrieve: !include class-retrieve.json
   classModify: !include class-modify.json
+  questionRetrieve: !include question-retrieve.json
+  questionModify: !include question-modify.json
+  responseRetrieve: !include response-retrieve.json
+  responseModify: !include response-modify.json
+  stats: !include stats.json
 
 traits:
+  searchable:
+    queryParameters:
+      query:
+        description: Query to search for. <<description>>
+        type: string
+        required: false
   orderable:
     queryParameters:
       orderBy:
@@ -78,14 +89,53 @@ traits:
         body:
           application/json:
             type: |
-              
+              {
+                "type": "array",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "items": {
+                  "$ref": "response-retrieve.json"
+                }
+              }
     /current-classes:
-      type: id-list
       description: A list of active classes in which the student is currently registered.
+      get:
+        description: |
+          Get the paginated list of classes in which the student is currently registered.
+          The classes are sorted descending by date joined.
+        is:
+          - pageable
+        body:
+          application/json:
+            type: |
+              {
+                "type": "array",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "items": {
+                  "$ref": "class-retrieve.json"
+                }
+              }
     /past-classes:
-      type: id-list
       description: A list of inactive classes in which the student was previously registered.
-    
+      # TODO: searching through past classes? Maybe after three terms.
+      get:
+        description: |
+          Get the paginated list of classes in which the student was previously registered.
+          The classes are sorted descending by date joined.
+        is:
+          - pageable
+        body:
+          application/json:
+            type: |
+              {
+                "type": "array",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "items": {
+                  "$ref": "class-retrieve.json"
+                }
+              }
 /instructors:
   description: Collection of all registered instructors.
   post:
@@ -110,20 +160,71 @@ traits:
     /questions:
       description: A list of all questions the instructor has ever asked.
       get:
-        description: Get the paginated list of questions asked by the instructor.
+        description: |
+          Get the paginated and searchable list of questions asked by the instructor.
+        is:
+          - pageable
+          - orderable: {fields: ["recency", "correctPercent", "incorrectPercent", "unrespondedPercent"]}
+          - searchable: {description: "Searches in question and correct answer texts."}
+        responses:
+          200:
+            application/json:
+              type: |
+                {
+                "type": "array",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "items": {
+                  "$ref": "question-retrieve.json"
+                }
+              }
     /current-classes:
-      type: id-list
       description: A list of all active classes currently owned by the instructor.
+      get:
+        description: |
+          Get the paginated list of classes currently active.
+          The classes are sorted descending by date joined.
+        is:
+          - pageable
+        body:
+          application/json:
+            type: |
+              {
+                "type": "array",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "items": {
+                  "$ref": "class-retrieve.json"
+                }
+              }
     /past-classes:
-      type: id-list
       description: A list of all inactive classes previously owned by the instructor.
+      # TODO: searching through past classes? Maybe after three terms.
+      get:
+        description: |
+          Get the paginated list of classes previously owned by the instructor.
+          The classes are sorted descending by date joined.
+        is:
+          - pageable
+        body:
+          application/json:
+            type: |
+              {
+                "type": "array",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "items": {
+                  "$ref": "class-retrieve.json"
+                }
+              }
 
 /classes:
   description: Collection of all classes, active and inactive.
   get:
-    # TODO - pagination?
-    description: Get a list of all classes.
-    queryParameters: 
+    description: Get the pageable and searchable list of all classes, ordered by date.
+    is:
+      - pageable
+    queryParameters:
       active:
         description: |
           Specifies whether to filter active classes. If true, filter for active classes;
@@ -143,56 +244,292 @@ traits:
         displayName: Search text
         type: string
         required: false
-      top:
-        description: Number of top search results to return. Maximum is 40.
-        displayName: Top
-        type: integer
-        required: false
     responses:
       200:
         application/json:
           type: |
             {
               "type": "array",
-              "$schema": "http://json-schema.org/draft-04/schema",
+              "$schema": "http://json-schema.org/draft-07/schema",
               "id": "http://jsonschema.net",
               "items": {
                 "$ref": "class-retrieve.json"
               }
             }
   post:
-    
+    description: Create a new class.
+    body:
+      application/json:
+        type: classModify
   /{classId}:
     get:
+      description: Get information about a class.
+      responses:
+        200:
+          application/json:
+            type: classRetrieve
     put:
+      description: Update a class's information.
+      body:
+        application/json:
+          type: classModify
     delete:
+      description: Delete a class.
     /active:
       get:
+        description: Get whether the class is currently active.
+        responses:
+          200:
+            application/json:
+              type: |
+                {
+                  "type": "object",
+                  "$schema": "http://json-schema.org/draft-07/schema",
+                  "id": "http://jsonschema.net",
+                  "properties": {
+                    "active": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["active"],
+                  "additionalProperties": false
+                }
       put:
+        description: |
+          Set a class as active or inactive. Setting as inactive will move the class
+          to "past classes" in all lists of current and past classes, and will disable
+          creating questions or responses. Setting as active will set it back.
+        body:
+          application/json:
+            type: |
+              {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "properties": {
+                  "active": {
+                    "type": "boolean"
+                  }
+                },
+                "required": ["active"],
+                "additionalProperties": false
+              }
     /instructors:
       get:
+        description: Get all instructors for a class, ordered alphabetically.
+        responses:
+          200:
+            application/json:
+              type: |
+                {
+                  "type": "array",
+                  "$schema": "http://json-schema.org/draft-07/schema",
+                  "id": "http://jsonschema.net",
+                  "items": {
+                    "$ref": "instructor-retrieve.json"
+                  }
+                }
       post:
+        description: Add a new instructor to this class.
+        body:
+          application/json:
+            type: |
+              {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "properties": {
+                  "instructorId": {
+                    "type": "string"
+                  }
+                },
+                "required": "instructorId",
+                "additionalProperties": false
+              }
       /{instructorId}:
         delete:
+          description: |
+            Remove an instructor from the class. Will respond with 403 Forbidden if this is the
+            last remaining instructor.
     /students:
       get:
+        description: Get a pageable list of all students in the class, ordered alphabetically by name.
+        is:
+          - pageable
+        responses:
+          200:
+            application/json:
+              type: |
+                {
+                  "type": "array",
+                  "$schema": "http://json-schema.org/draft-07/schema",
+                  "id": "http://jsonschema.net",
+                  "items": {
+                    "$ref": "student-retrieve.json"
+                  }
+                }
       post:
+        description: Add a student to the class.
+        body:
+          application/json:
+            type: |
+              {
+                "type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "properties": {
+                  "studentId": {
+                    "type": "string"
+                  }
+                },
+                "required": "studentId",
+                "additionalProperties": false
+              }
       /{studentId}:
         delete:
+          description: Delete a student from a class
         /performance:
           get:
+            description: Get a student's performance in the class.
+            responses:
+              200:
+                application/json:
+                  type: stats
     /responses:
+      description: A list of all responses to questions in the class.
       get:
-
-/questions:
-  post:
-  /{questionId}:
-    get:
-    put:
-    delete:
-    /responses:
+        description: Get all the responses for a class
+        is:
+          - pageable
+          - orderable: {fields: ["recency", "correct", "incorrect"], default: "recency"}
+          - searchable: {description: "Searches in question texts, answer texts, and short answer responses."}
+        responses:
+          200:
+            application/json:
+              type: |
+                {
+                  "type": "array",
+                  "$schema": "http://json-schema.org/draft-07/schema",
+                  "id": "http://jsonschema.net",
+                  "items": {
+                    "$ref": "response-retrieve.json"
+                  }
+                }
+    /questions:
+      description: The collection of all questions in the class.
       get:
-      /{studentId}:
+        description: Get a pageable and searchable list of all questions in the class.
+        is:
+          - pageable
+          - searchable: {description: "Searches in question texts and answer texts."}
+        queryParameters: 
+          viewableByStudents:
+            description: |
+              Specifies whether to filter for questions viewable by students. Controlled by instructor
+              after asking question. If true, filter for questions marked viewable by students; if false,
+              filter for questions not marked viewable by students; if not present, don't filter at all.
+              (In future) - will return an error if viewableByStudents is not present or false and this
+              request is done by a student account.
+            type: boolean
+            required: false
+        responses:
+          200:
+            application/json:
+              type: |
+                {
+                  "type": "array",
+                  "$schema": "http://json-schema.org/draft-07/schema",
+                  "id": "http://jsonschema.net",
+                  "items": {
+                    "$ref": "question-retrieve.json"
+                  }
+                }
+      post:
+        description: Create a question for a class.
+        body:
+          application/json:
+            type: questionModify
+      /{questionId}:
         get:
+          description: Get information about a question for a class.
+          responses:
+            200:
+              application/json:
+                type: questionRetrieve
         put:
+          description: Modify a question's information.
+          body:
+            application/json:
+              type: questionModify
         delete:
+        /viewable-by-students:
+          get:
+            description: Get whether a question is viewable by students.
+            responses:
+              200:
+                application/json:
+                  type: |
+                    {
+                      "type": "object",
+                      "$schema": "http://json-schema.org/draft-07/schema",
+                      "id": "http://jsonschema.net",
+                      "properties": {
+                        "viewableByStudents": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": "viewableByStudents",
+                      "additionalProperties": false
+                    }
+          put:
+            description: Set whether a question is viewable by students.
+            body:
+              application/json:
+                type: |
+                  {
+                    "type": "object",
+                    "$schema": "http://json-schema.org/draft-07/schema",
+                    "id": "http://jsonschema.net",
+                    "properties": {
+                      "viewableByStudents": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": "viewableByStudents",
+                    "additionalProperties": false
+                  }
+        /responses:
+          description: A list of all responses to this question.
+          get:
+            description: Get the list of all responses to a question.
+            is:
+              - pageable
+              - orderable: {fields: ["recency", "correct", "incorrect"], default: "correct"}
+            responses:
+              200:
+                application/json:
+                  type: |
+                    {
+                      "type": "array",
+                      "$schema": "http://json-schema.org/draft-07/schema",
+                      "id": "http://jsonschema.net",
+                      "items": {
+                        "$ref": "response-retrieve.json"
+                      }
+                    }
+          /{studentId}:
+            description: The response by a specific student to this question.
+            get:
+              description: Get the response made by a student to this question.
+              responses:
+                200:
+                  application/json:
+                    type: responseRetrieve
+                404:
+            put:
+              description: Create or change a student's response to this question
+              body:
+                application/json:
+                  type: responseModify
+            delete:
+              description: Delete a student's reponse to this question.
