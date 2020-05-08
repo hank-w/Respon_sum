@@ -19,6 +19,7 @@
   "homepage": "https://github.com/swiftbeagle/Respon_sum#readme",
   "dependencies": {
     "express": "^4.17.1",
+    "express-validator": "^6.4.1",
     "mongodb": "^3.5.6"
   }
 }

@@ -73,38 +73,45 @@ Later down the line:
 
 Records: student, instructor, class, questions, responses
 
+Collections:
+* students
+* instructors
+* classes
+* questions
+* responses
+
 Terminology: response is the object generated when a student clicks e.g. A,
 and "answer" is the option out of 5 or so they click.
 
 Student:
 {
-  ID: UUID
+  \_id: UUID
   name: string
   email: string
-  student number: const string ("anonymous")
+  student_number: const string ("anonymous")
   institution: string
 
   ( other identifying info we ask for on sign up )
-  current classes: [ class ids ]
-  prior classes: [ class ids ]  (Student inherits Class, vars questions right,wrong,unanswered,etc.)
+  current_classes: [ class ids ]
+  prior_classes: [ class ids ]  (Student inherits Class, vars questions right,wrong,unanswered,etc.)
   
-  class id to performance: { map of class id to Stats }
+  class_id_to_performance: { map of class id to Stats }
   
-  overall performance: Stats
+  overall_performance: Stats
   
   responses: [ response ids ]
 }
 
 Instructor:
 {
-  ID: UUID
+  \_id: UUID
   name: string
   email: string
   institution: string
   ( other identifying info )
   
-  currently owned classes: [ class ids ]
-  prior owned classes: [ class ids ]
+  currently_owned_classes: [ class ids ]
+  prior_owned_classes: [ class ids ]
   
   **(if question format, store question and possible reponses)
   questions: [ question ids ] (%correct, %answered,)
@@ -112,7 +119,7 @@ Instructor:
 
 Class:
 {
-  ID: uuid
+  \_id: uuid
   name: string
   active: boolean
   instructors: [ instructor ids ]
@@ -124,42 +131,42 @@ Class:
 
 Question:
 {
-  ID: uuid
+  \_id: uuid
   class: class id
   
   asked: int
   
   timestamps: [ // length equal to asked
     {
-      started timestamp: datetime
-      stopped timestamp: datetime
+      started_timestamp: datetime
+      stopped_timestamp: datetime
     }
   ]
   
   responses: [ response ids ] (from id we can extract answer)
   
-  viewableByStudents: boolean
+  viewable_by_students: boolean
   
   type: QuestionType
   
   stats: Stats[] // length equal to asked
   
   ( these fields appear if type == MULTIPLE_CHOICE )
-  num answers: int
+  num_answers: int
   ( these are optional )
-  correct answer: int
+  correct_answer: int
   question text: string
-  answer texts: [ string ] // order important
+  answer_texts: [ string ] // order important
   
   ( these fields appear if type == SHORT_ANSWER )
   ( optional )
-  correct answer: string
+  correct_answer: string
 }
 
 object Stats {
-  num correct: int
-  num incorrect: int
-  num didn't answer: int
+  num_correct: int
+  num_incorrect: int
+  num_unresponded: int
 }
 
 enum QuestionType {
@@ -168,7 +175,7 @@ enum QuestionType {
 
 Response:
 {
-  ID: uuid
+  \_id: uuid
   timestamp: datetime
   student: student id
   class: class id
@@ -178,8 +185,8 @@ Response:
   correct: boolean
   
   ( if the question's type is MULTIPLE_CHOICE )
-  answer number: int
+  answer_number: int
   
   ( if the question's type is SHORT_ANSWER )
-  answer text: string
+  answer_text: string
 }
