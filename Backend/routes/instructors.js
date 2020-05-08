@@ -8,7 +8,7 @@ router.post('/', [
   body('email').isEmail(),
   body('institution').isLength({min: 1}),
 ], (req, res, next) => {
-  req.db.collection('students').insertOne({
+  req.db.collection('instructors').insertOne({
     name: req.body.name,
     email: req.body.email,
     institution: req.body.institution,
@@ -34,6 +34,37 @@ router.get('/:instructorId', [
       email: result.email,
       institution: resut.institution,
     });
+  });
+});
+
+router.put('/:instructorId', [
+  params('instructorID').isLength({min: 1}),
+  body('name').isLength({min: 1}),
+  body('email').isEmail(),
+  body('institution').isLength({min: 1}),
+], (req, res) => {
+  req.db.collection('instructors').updateOne({ _id: req.params.studentId }, {
+    $set: {
+      name: req.body.name,
+      email: req.body.email,
+      institution: req.body.institution,
+    }
+  }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ msg: 'Instructor Not Found' });
+    }
+    res.status(200).json({ msg: 'Instructor Updated' });
+  });
+});
+
+router.delete('/:instructorId', [
+  params('instructorId').isLength({ min: 1 })
+], (req, res) => {
+  req.db.collection('instructors').deleteOne({ _id: req.params.instructorId }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (result.deletedCount === 0) return res.status(404).json({ msg: 'Instructor Not Found' });
+    res.status(200).json({ msg: 'Instructor Deleted' });
   });
 });
 

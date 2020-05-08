@@ -34,7 +34,7 @@ router.get('/:studentId', [
 ], (req, res) => {
   req.db.collection('students').findOne({ _id: req.params.studentId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    if (!result) return res.status(404).json({ msg: 'Not Found' });
+    if (!result) return res.status(404).json({ msg: 'Student Not Found' });
     return res.status(200).json({
       id: result._id,
       name: result.name,
@@ -47,6 +47,37 @@ router.get('/:studentId', [
         numUnresponded: result.num_unresponded
       }
     });
+  });
+});
+
+router.put('/:studentId', [
+  params('studentId').isLength({ min: 1 }),
+  body('name').isLength({ min: 1 }),
+  body('email').isEmail(),
+  body('studentNumber').isLength({ min: 1 }),
+  body('institution').isLength({ min: 1 })
+], (req, res) => {
+  req.db.collection('students').updateOne({ _id: req.params.studentId }, {
+    $set: {
+      name: req.body.name,
+      email: req.body.email,
+      student_number: req.body.studentNumber,
+      institution: req.body.institution,
+    }
+  }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (result.modifiedCount === 0) return res.status(404).json({ msg: 'Student Not Found' });
+    res.status(200).json({ msg: 'Student Updated' });
+  });
+});
+
+router.delete('/:studentId', [
+  params('studentId').isLength({ min: 1 })
+], (req, res) => {
+  req.db.collection('students').deleteOne({ _id: req.params.studentId }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (result.deletedCount === 0) return res.status(404).json({ msg: 'Student Not Found' });
+    res.status(200).json({ msg: 'Student Deleted' });
   });
 });
 
