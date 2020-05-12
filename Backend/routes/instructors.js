@@ -1,6 +1,10 @@
 const express = require('express');
 const { body, params } = require('express-validator');
 
+const pagination = require('../middleware/pagination.js');
+const ordering = require('../middleware/pagination.js');
+const searching = require('../middleware/pagination.js');
+
 const router = express.Router();
 
 router.post('/', [
@@ -66,6 +70,25 @@ router.delete('/:instructorId', [
     if (result.deletedCount === 0) return res.status(404).json({ msg: 'Instructor Not Found' });
     res.status(200).json({ msg: 'Instructor Deleted' });
   });
+});
+
+router.use('/:instructorId/questions', pagination());
+router.use('/:instructorId/questions', ordering(
+  ['recency', 'correctPercent', 'incorrectPercent', 'unrespondedPercent'], 'recency'))
+router.get('/:instructorId/questions', [
+  params('instructorId').isLength({min: 1})
+], (req, res) => {
+  let cursor = req.db.collection('instructors').find({})
+    .skip(req.pagination.skip).limit(req.pagination.limit);
+  
+  let orderDir = req.ordering.order === 'asc' ? 1 : -1;
+  
+  switch (req.ordering.orderBy) {
+    case 'recency':
+    default:
+      cursor.sort();
+      
+  }
 });
 
 module.exports = router;

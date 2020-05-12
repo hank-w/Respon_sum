@@ -1,6 +1,9 @@
 const express = require('express');
 const { body, params } = require('express-validator');
 
+const pagination = require('../middleware/pagination.js');
+const ordering = require('../middleware/ordering.js');
+
 const router = express.Router();
 
 router.post('/', [
@@ -78,6 +81,70 @@ router.delete('/:studentId', [
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.deletedCount === 0) return res.status(404).json({ msg: 'Student Not Found' });
     res.status(200).json({ msg: 'Student Deleted' });
+  });
+});
+
+router.use('/:studentId/responses', pagination());
+router.use('/:studentId/responses', ordering(['recency', 'correct', 'wrong'], 'recency'));
+router.get('/:studentId/responses', [
+  params('studentId').isLength({ min: 1 })
+], (req, res) => {
+  let query = {};
+  
+  if (req.ordering.orderBy === 'correct' || req.ordering.orderBy === 'wrong') {
+    query = {
+      correct: {
+        $exists: true
+      }
+    };
+  }
+  
+  let cursor = req.db.collection('students').find(query)
+    .skip(req.pagination.skip).limit(req.pagination.limit);
+  
+  let orderDir = req.ordering.order === 'asc' ? 1 : -1;
+  
+  switch (req.ordering.orderBy) {
+    case 'recency':
+    default:
+      cursor.sort('timestamp', orderDir);
+      break;
+    case 'correct':
+      cursor.sort(['correct', 'timestamp'], orderDir);
+      break;
+    case 'wrong':
+      cursor.sort([['correct', orderDir === 1 ? -1 : 1], ['timestamp', orderDir]]);
+      break;
+  }
+  
+  cursor.toArray((err, docs) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    
+    let responses = [];
+    for (let doc of docs) {
+      let response = {
+        id: doc._id,
+        timestamp: doc.timestamp,
+        studentId: doc.student,
+        classId: doc['class'],
+        questionId: doc.question,
+        questionType: doc.question_type,
+      };
+      
+      if (doc.hasOwnProperty('correct')) {
+        response.correct = doc.correct;
+      }
+      if (doc.hasOwnProperty('answer_number')) {
+        response.answerNumber = doc.answer_number;
+      }
+      if (doc.hasOwnProperty('answer_text')) {
+        response.answerText = doc.answer_text;
+      }
+      
+      responses.push(response);
+    }
+    
+    res.status(200).json(responses);
   });
 });
 

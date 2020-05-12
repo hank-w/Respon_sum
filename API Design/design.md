@@ -180,6 +180,7 @@ Response:
   student: student id
   class: class id
   question: question id
+  question_type: QuestionType
   
   ( optional )
   correct: boolean

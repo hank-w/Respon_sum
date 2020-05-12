@@ -96,12 +96,12 @@ traits:
       get:
         description: |
           Get the paginated list of responses made by the student.
-          If ordering by "correct", "wrong", or "unresponded", responses matching the criteria
+          If ordering by "correct" or "wrong", responses matching the criteria
           will be placed at the top. Then, they will be sorted by type of response in one batch.
           Within each batch, they will be sorted by recency.
         is:
           - pageable
-          - orderable: {fields: ["recency", "correct", "wrong", "unresponded"], default: "recency"}
+          - orderable: {fields: ["recency", "correct", "wrong"], default: "recency"}
         body:
           application/json:
             type: |
