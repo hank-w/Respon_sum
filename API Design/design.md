@@ -122,10 +122,11 @@ Class:
   \_id: uuid
   name: string
   active: boolean
+  institution: string
   instructors: [ instructor ids ]
   students: [ student ids ]
   questions: [ question ids ]
-  all_responses: [ response ids ]
+  responses: [ response ids ]
   aggregate_stats: Stats
 }
 

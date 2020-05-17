@@ -9,6 +9,9 @@
     "active": {
       "type": "boolean"
     },
+    "institution": {
+      "type": "string"
+    },
     "instructorIds": {
       "type": "array",
       "items": {
@@ -17,6 +20,6 @@
       "minItems": 1
     }
   },
-  "required": ["active"],
+  "required": ["name", "active", "instructorIds"],
   "additionalProperties": false
 }

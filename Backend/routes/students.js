@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, params } = require('express-validator');
 
-const getCurrentOrPastClasses = require('./get-classes.js');
+const { getCurrentOrPastClasses } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
 
@@ -24,7 +24,10 @@ router.post('/', [
     overall_performance: {
       num_correct: 0,
       num_incorrect: 0,
-      num_unresponded: 0
+      num_unresponded: 0,
+      correct_percent: 0,
+      incorrect_percent: 0,
+      unresponded_percent: 0,
     },
     responses: []
   }, (err, result) => {

@@ -159,6 +159,22 @@ traits:
     body:
       application/json:
         type: instructorModify
+    responses:
+      200:
+        body:
+          application/json:
+            type: |
+              {
+                "$type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
   /{instructorId}:
     get:
       description: Get information about an instructor.
@@ -256,7 +272,7 @@ traits:
         required: false
       searchText:
         description: |
-          Text to search for in class data. Matches instructor and class names.
+          Text to search for in class data. Matches class names.
         displayName: Search text
         type: string
         required: false
@@ -277,6 +293,22 @@ traits:
     body:
       application/json:
         type: classModify
+    responses:
+      200:
+        body:
+          application/json:
+            type: |
+              {
+                "$type": "object",
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "id": "http://jsonschema.net",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
   /{classId}:
     get:
       description: Get information about a class.

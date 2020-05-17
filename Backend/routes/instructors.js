@@ -1,17 +1,17 @@
 const express = require('express');
 const { body, params } = require('express-validator');
 
-const getCurrentOrPastClasses = require('./get-classes.js');
+const { getCurrentOrPastClasses } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
 
 const router = express.Router();
 
-router.post('/', [
-  body('name').isLength({min: 1}),
+router.post('/', [ 
+  body('name').isLength({ min: 1 }),
   body('email').isEmail(),
-  body('institution').isLength({min: 1}),
-], (req, res, next) => {
+  body('institution').isLength({ min: 1 }),
+], (req, res) => {
   req.db.collection('instructors').insertOne({
     name: req.body.name,
     email: req.body.email,
@@ -27,7 +27,7 @@ router.post('/', [
 });
 
 router.get('/:instructorId', [
-  params('instructorID').isLength({min: 1})
+  params('instructorID').isLength({ min: 1 })
 ], (req, res) => {
   req.db.collection('instructors').findOne({ _id: req.params.instructorId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error'});
@@ -42,10 +42,10 @@ router.get('/:instructorId', [
 });
 
 router.put('/:instructorId', [
-  params('instructorID').isLength({min: 1}),
-  body('name').isLength({min: 1}),
+  params('instructorID').isLength({ min: 1 }),
+  body('name').isLength({ min: 1 }),
   body('email').isEmail(),
-  body('institution').isLength({min: 1}),
+  body('institution').isLength({ min: 1 }),
 ], (req, res) => {
   req.db.collection('instructors').updateOne({ _id: req.params.studentId }, {
     $set: {
@@ -76,7 +76,7 @@ router.use('/:instructorId/questions', pagination());
 router.use('/:instructorId/questions', ordering(
   ['recency', 'correctPercent', 'incorrectPercent', 'unrespondedPercent'], 'recency'))
 router.get('/:instructorId/questions', [
-  params('instructorId').isLength({min: 1})
+  params('instructorId').isLength({ min: 1 })
 ], (req, res) => {
   // query questions per instructor
   let cursor = req.db.collection('questions').find({
