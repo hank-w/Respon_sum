@@ -32,6 +32,7 @@ router.post('/', [
   });
 });
 
+// query studentID
 router.get('/:studentId', [
   params('studentId').isLength({ min: 1 })
 ], (req, res) => {
@@ -89,31 +90,30 @@ router.use('/:studentId/responses', ordering(['recency', 'correct', 'wrong'], 'r
 router.get('/:studentId/responses', [
   params('studentId').isLength({ min: 1 })
 ], (req, res) => {
-  let query = {};
+  let query = {
+    student: req.params.studentId
+  };
   
   if (req.ordering.orderBy === 'correct' || req.ordering.orderBy === 'wrong') {
-    query = {
-      correct: {
-        $exists: true
-      }
-    };
+    query.correct = { $exists: true };
   }
-  
-  let cursor = req.db.collection('students').find(query)
+  // query responses for a student
+  let cursor = req.db.collection('responses').find(query)
     .skip(req.pagination.skip).limit(req.pagination.limit);
   
   let orderDir = req.ordering.order === 'asc' ? 1 : -1;
+  let inverseOrderDir = (orderDir === 1) ? -1 : 1;
   
   switch (req.ordering.orderBy) {
     case 'recency':
     default:
-      cursor.sort('timestamp', orderDir);
+      cursor.sort('timestamp', inverseOrderDir);
       break;
     case 'correct':
       cursor.sort(['correct', 'timestamp'], orderDir);
       break;
     case 'wrong':
-      cursor.sort([['correct', orderDir === 1 ? -1 : 1], ['timestamp', orderDir]]);
+      cursor.sort([['correct', inverseOrderDir], ['timestamp', orderDir]]);
       break;
   }
   

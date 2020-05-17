@@ -2,8 +2,7 @@ const express = require('express');
 const { body, params } = require('express-validator');
 
 const pagination = require('../middleware/pagination.js');
-const ordering = require('../middleware/pagination.js');
-const searching = require('../middleware/pagination.js');
+const ordering = require('../middleware/ordering.js');
 
 const router = express.Router();
 
@@ -78,17 +77,79 @@ router.use('/:instructorId/questions', ordering(
 router.get('/:instructorId/questions', [
   params('instructorId').isLength({min: 1})
 ], (req, res) => {
-  let cursor = req.db.collection('instructors').find({})
-    .skip(req.pagination.skip).limit(req.pagination.limit);
+  // query questions per instructor
+  let cursor = req.db.collection('questions').find({
+    instructors: {
+      $eq: req.params.instructorId
+    }
+  }).skip(req.pagination.skip).limit(req.pagination.limit);
   
   let orderDir = req.ordering.order === 'asc' ? 1 : -1;
+  let inverseOrderDir = (orderDir === 1) ? -1 : 1;
   
   switch (req.ordering.orderBy) {
     case 'recency':
     default:
-      cursor.sort();
-      
+      cursor.sort('last_started_timestamp', inverseOrderDir);
+      break;
+    case 'correctPercent':
+      cursor.sort('last_stats.correct_percent', orderDir);
+      break;
+    case 'incorrectPercent':
+      cursor.sort('last_stats.incorrect_percent', orderDir);
+      break;
+    case 'unrespondedPercent':
+      cursor.sort('last_stats.unresponded_percent', orderDir);
+      break;
   }
+  
+  cursor.toArray((err, docs) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    
+    let responses = [];
+    for (let doc of docs) {
+      let response = {
+        id: doc._id,
+        asked: doc.asked,
+        timestamps: [],
+        stats: [],
+        questionType: doc.type,
+      };
+      
+      for (let timestamp of doc.timestamps) {
+        response.timestamps.push({
+          started: timestamp.started_timestamp,
+          stopped: timestamp.stopped_timestamp,
+        });
+      }
+      
+      for (let stats of doc.stats) {
+        response.stats.push({
+          numCorrect: stats.num_correct,
+          numIncorrect: stats.num_incorrect,
+          numUnresponded: stats.num_unresponded,
+        });
+      }
+      
+      if (doc.hasOwnProperty('question_text')) {
+        response.questionText = doc.questionText;
+      }
+      if (doc.hasOwnProperty('correct_answer')) {
+        response.correctAnswer = doc.correct_answer;
+      }
+      
+      if (doc.type === 'multiple-choice') {
+        response.numAnswers = doc.num_answers;
+        if (doc.hasOwnProperty('answer_texts')) {
+          response.answerTexts = doc.answer_texts;
+        }
+      }
+      
+      responses.push(response);
+    }
+    
+    res.status(200).json(responses);
+  });
 });
 
 module.exports = router;

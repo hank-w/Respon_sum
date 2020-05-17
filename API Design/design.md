@@ -126,7 +126,7 @@ Class:
   students: [ student ids ]
   questions: [ question ids ]
   all responses: [ response ids ]
-  aggregate stats: QuestionStats
+  aggregate stats: Stats
 }
 
 Question:
@@ -143,6 +143,8 @@ Question:
     }
   ]
   
+  last_started_timestamp: datetime
+  
   responses: [ response ids ] (from id we can extract answer)
   
   viewable_by_students: boolean
@@ -151,11 +153,15 @@ Question:
   
   stats: Stats[] // length equal to asked
   
+  last_stats: Stats
+  
+  instructors: [ instructor ids ] (ids of instructors that own this question)
+  
   ( these fields appear if type == MULTIPLE_CHOICE )
   num_answers: int
   ( these are optional )
   correct_answer: int
-  question text: string
+  question_text: string
   answer_texts: [ string ] // order important
   
   ( these fields appear if type == SHORT_ANSWER )
@@ -167,10 +173,13 @@ object Stats {
   num_correct: int
   num_incorrect: int
   num_unresponded: int
+  correct_percent: float
+  incorrect_percent: float
+  unresponded_percent: float
 }
 
 enum QuestionType {
-  MULTIPLE_CHOICE, SHORT_ANSWER,
+  MULTIPLE_CHOICE 'multiple-choice', SHORT_ANSWER 'short-answer',
 }
 
 Response:
