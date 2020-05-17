@@ -58,7 +58,7 @@ router.put('/:instructorId', [
     if (result.modifiedCount === 0) {
       return res.status(404).json({ msg: 'Instructor Not Found' });
     }
-    res.status(200).json({ msg: 'Instructor Updated' });
+    res.status(200).json({ msg: 'Instructor Successfully Updated' });
   });
 });
 

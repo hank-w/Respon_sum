@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, params } = require('express-validator');
 
-const { classDocsToResponses } = require('./get-classes.js');
+const { classDocToResponse, classDocsToResponses } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
 const searching = require('../middleware/searching.js');
@@ -77,8 +77,48 @@ router.post('/', [
   });
 });
 
-router.get('/:classId', (req, res) => {
-  
+router.get('/:classId', [
+  params('classId').isLength({ min: 1 })
+], (req, res) => {
+  req.db.collection('classes').findOne({ _id: req.params.classId }, (err, doc) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (!doc) return res.status(404).json({ msg: 'Class Not Found' });
+    res.status(200).json(classDocToResponse(doc));
+  });
+});
+
+router.put('/:classId', [
+  params('classId').isLength({ min: 1 }),
+  body('name').isLength({ min: 1 }),
+  body('active').toBoolean(),
+  body('institution').isLength({ min: 1 }),
+  body('instructorIds').custom(value => Array.isArray(value) && value.length >= 1),
+  body('instructorIds.*').not().isEmpty(),
+], (req, res) => {
+  req.db.collection('classes').updateOne({ _id: req.params.classId }, {
+    $set: {
+      name: req.body.name,
+      active: req.body.active,
+      institution: req.body.institution,
+      instructorIds: req.body.instructorIds,
+    }
+  }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error'});
+    if (result.modifiedCount === 0){
+      return res.status(404).json({ msg: 'Class Not Found' });
+    }
+    res.status(200).json({ msg: 'Class Successfully Updated' });
+  });
+});
+
+router.delete(':/classId', [
+  params('classId').isLength({ min: 1 })
+], (req, res) => {
+  req.db.collection('classes').deleteOne({ _id: req.params.classId }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (result.deletedCount === 0) return res.status(404).json({ msg: 'Class Not Found' });
+    res.status(200).json({ msg: 'Class Deleted' });
+  });
 });
 
 module.exports = router;

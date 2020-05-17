@@ -1,17 +1,21 @@
+module.exports.classDocToResponse = function classDocToResponse(doc) {
+  return {
+    id: doc._id,
+    name: doc.name,
+    active: doc.active,
+    institution: doc.institution,
+    stats: {
+      numCorrect: doc.aggregate_stats.num_correct,
+      numIncorrect: doc.aggregate_stats.num_incorrect,
+      numUnanswered: doc.aggregate_stats.num_unanswered,
+    }
+  };
+}
+
 module.exports.classDocsToResponses = function classDocsToResponses(docs) {
   let responses = [];
   for (let doc of docs) {
-    responses.push({
-      id: doc._id,
-      name: doc.name,
-      active: doc.active,
-      institution: doc.institution,
-      stats: {
-        numCorrect: doc.aggregate_stats.num_correct,
-        numIncorrect: doc.aggregate_stats.num_incorrect,
-        numUnanswered: doc.aggregate_stats.num_unanswered,
-      }
-    });
+    responses.push(classDocsToResponses(doc));
   }
   return responses;
 };
