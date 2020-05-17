@@ -125,8 +125,8 @@ Class:
   instructors: [ instructor ids ]
   students: [ student ids ]
   questions: [ question ids ]
-  all responses: [ response ids ]
-  aggregate stats: Stats
+  all_responses: [ response ids ]
+  aggregate_stats: Stats
 }
 
 Question:

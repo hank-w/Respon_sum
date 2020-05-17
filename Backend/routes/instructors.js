@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, params } = require('express-validator');
 
+const getCurrentOrPastClasses = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
 
@@ -151,5 +152,15 @@ router.get('/:instructorId/questions', [
     res.status(200).json(responses);
   });
 });
+
+router.use('/:instructorId/current-classes', pagination());
+router.get('/:instructorId/current-classes', [
+  params('instructorId').isLength({ min: 1 })
+], getCurrentOrPastClasses(req => ({ instructors: req.params.instructorId }), true));
+
+router.use('/:instructorId/past-classes', pagination());
+router.get('/:instructorId/past-classes', [ 
+  params('instructorId').isLength({ min: 1 })
+], getCurrentOrPastClasses(req => ({ instructors : req.params.instructorId}), false));
 
 module.exports = router;

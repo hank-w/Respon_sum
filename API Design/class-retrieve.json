@@ -29,5 +29,6 @@
       "additionalProperties": false
     }
   },
+  "required": ["id", "name", "active", "stats"],
   "additionalProperties": false
 }
