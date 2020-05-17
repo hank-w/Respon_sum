@@ -111,13 +111,40 @@ router.put('/:classId', [
   });
 });
 
-router.delete(':/classId', [
+router.delete('/:classId', [
   params('classId').isLength({ min: 1 })
 ], (req, res) => {
   req.db.collection('classes').deleteOne({ _id: req.params.classId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.deletedCount === 0) return res.status(404).json({ msg: 'Class Not Found' });
     res.status(200).json({ msg: 'Class Deleted' });
+  });
+});
+
+router.get('/:classId/active', [
+  params('classId').isLength({ min: 1 })
+], (req, res) => {
+  req.db.collection.findOne({ _id: req.params.classId }, (err, doc) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (!doc) return res.status(404).json({ msg: 'Class Not Found' });
+    res.status(200).json({ active: doc.active });
+  });
+});
+
+router.put('/:classId/active', [
+  params('classId').isLength({ min: 1 }),
+  body('active').toBoolean()
+], (req, res) => {
+  req.db.collection.updateOne({ _id: req.params.classId }, {
+    $set: {
+      active: req.body.active,
+    }
+  }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ msg: 'Class Not Found' });
+    }
+    res.status(200).json({ msg: 'Class Active Status Successfully Updated' });
   });
 });
 
