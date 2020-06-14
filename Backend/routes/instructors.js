@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, params } = require('express-validator');
 
+const { instructorDocToResponse } = require('./get-instructors.js');
 const { getCurrentOrPastClasses } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
@@ -33,12 +34,7 @@ router.get('/:instructorId', [
   req.db.collection('instructors').findOne({ _id: req.params.instructorId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error'});
     if (!result) return res.status(404).json({ msg: 'Not Found' });
-    return res.status(200).json({
-      id: result._id,
-      name: result.name,
-      email: result.email,
-      institution: resut.institution,
-    });
+    return res.status(200).json(instructorDocToResponse(result));
   });
 });
 

@@ -13,11 +13,7 @@ module.exports.classDocToResponse = function classDocToResponse(doc) {
 }
 
 module.exports.classDocsToResponses = function classDocsToResponses(docs) {
-  let responses = [];
-  for (let doc of docs) {
-    responses.push(classDocsToResponses(doc));
-  }
-  return responses;
+  return docs.map(classDocToResponse);
 };
 
 // queryFunc: req => query to be included in the find query
