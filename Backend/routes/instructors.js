@@ -26,6 +26,7 @@ router.post('/', [
   });
 });
 
+// route to get instructor ID
 router.get('/:instructorId', [
   params('instructorID').isLength({ min: 1 })
 ], (req, res) => {
