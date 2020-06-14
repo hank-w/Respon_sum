@@ -198,13 +198,38 @@ router.put('/:classId/instructors/:instructorId', [
   });
 });
 
-router.delete('/:classId/instructors/:instructorId'); // TODO
+router.delete('/:classId/instructors/:instructorId', [
+  params('classId').isLength({ min: 1 }),
+  params('instructorId').isLength({ min: 1 }),
+], (req, res) => {
+  req.db.collection('classes').updateOne({
+    _id: req.params.classId,
+    active: true,
+  }, {
+    $pull: { instructors: req.params.instructorId },
+  }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (result.modifiedCount !== 1) {
+      return res.status(404).json({ msg: 'Class not found or not active' });
+    }
+    
+    req.db.collection('instructors').updateOne({ _id: req.params.instructorId }, {
+      $pull: { currently_owned_classes: req.params.classId },
+    }, (err, result) => {
+      if (err) return res.status(500).json({ msg: 'Database Error' });
+      if (result.modifiedCount === 0) {
+        return res.status(404).json({ msg: 'Instructor Not Found (????)' });
+      }
+      return res.status(200).json({ msg: 'Instructor Successfully Unlinked' });
+    });
+  });
+});
 
 router.use('/:classId/students', pagination());
 router.get('/:classId/students', [
-  params('classId').isLength({ min: 1}),
+  params('classId').isLength({ min: 1 }),
 ], (req, res) => {
-  req.db.collection('classes').findOne({ _id: req.params.classId}, (err, classDoc) => {
+  req.db.collection('classes').findOne({ _id: req.params.classId }, (err, classDoc) => {
     if (err) return res.status(500).json({ msg: 'Class Not Found' });
     const studentIds = classDoc.students;
     req.db.collection('students')
@@ -241,12 +266,38 @@ router.put('/:classId/students/:studentId', [
       req.db.collection('students').updateOne({ _id: req.params.instructorId }, {
         $addToSet: { current_classes: req.params.classId },
       }, (err, result) => {
-        if (err) return res.status(500).json({ msg: 'Database Error'});
+        if (err) return res.status(500).json({ msg: 'Database Error' });
         if (result.modifiedCount === 0) {
           return res.status(404).json({ msg: 'Student Not Found' });
         }
-        return res.status(200).json({ msg: 'Student Successfully Added'});
+        return res.status(200).json({ msg: 'Student Successfully Linked' });
       });
+    });
+  });
+});
+
+router.delete('/:classId/student/:studentId', [
+  params('classId').isLength({ min: 1 }),
+  params('studentId').isLength({ min: 1 }),
+], (req, res) => {
+  req.db.collection('classes').updateOne({
+    _id: req.params.classId,
+    active: true,
+  }, {
+    $pull: { students: req.params.studentId },
+  }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (result.mofidiedCount !== 1) {
+      return res.status(404).json({ msg: 'Class not found or not active' });
+    }
+    req.db.collection('students').updateOne({ _id: req.params.studentId }, {
+      $pull: { current_classes: req.params.classId },
+    }, (err, result) => {
+      if (err) return res.status(500).json({ msg: 'Database Error' });
+      if (result.modifiedCount === 0) {
+        return res.status(404).json({ msg: 'Student Not Found' });
+      }
+      return res.status(200).json({ msg: 'Student Successfully Unlinked' });
     });
   });
 });
