@@ -1,8 +1,9 @@
 const express = require('express');
 const { body, params } = require('express-validator');
 
+const { studentDocToResponse } = require('./get-students.js');
 const { instructorDocToResponse } = require('./get-instructors.js');
-const { classDocToResponse, classDocsToResponses } = require('./get-classes.js');
+const { classDocToResponse } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
 const searching = require('../middleware/searching.js');
@@ -35,7 +36,7 @@ router.get('/', (req, res) => {
   .limit(req.pagination.limit)
   .toArray((err, docs) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    res.status(200).json(classDocsToResponses(docs));
+    res.status(200).json(docs.map(classDocToResponse));
   });
 });
 
@@ -167,45 +168,87 @@ router.put('/:classId/instructors/:instructorId', [
   param('classId').isLength({ min: 1 }),
   param('instructorId').isLength({ min: 1 }),
 ], (req, res) => {
-  req.db.collection('class').updateOne({ _id: req.params.classId }, {
-    $addToSet: { instructors: req.params.instructorId },
-  }, (err, result) => {
+  // make sure the instructor exists before adding
+  req.db.collection('instructors').countDocuments({ _id: req.params.instructorId },
+      { limit: 1 }, (err, count) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    if (result.modifiedCount === 0) {
-      return res.status(404).json({ msg: 'Class Not Found' });
-    }
+    if (count !== 1) return res.status(404).json({ msg: 'Instructor Not Found' });
 
-    let 
-    req.db.collection('instructors').updateOne()
-  });
-  req.db.collection('instructors').countDocuments({
-    _id: req.body.instructorId,
-  }, { limit: req.body.instructorIds.length }, (err, count) => {
-    if (err) return res.status(500).json({ msg: 'Database Error' });
-    if (count !== req.body.instructorIds.length) {
-      return res.status(422).json({ msg: 'Invalid or duplicate instructor IDs' });
-    }
+    req.db.collection('class').updateOne({
+      _id: req.params.classId,
+      active: true,
+    }, {
+      $addToSet: { instructors: req.params.instructorId },
+    }, (err, result) => {
+      if (err) return res.status(500).json({ msg: 'Database Error' });
+      if (result.modifiedCount === 0) {
+        return res.status(404).json({ msg: 'Class not found or not active' });
+      }
+  
+      req.db.collection('instructors').updateOne({ _id: req.params.instructorId }, {
+        $addToSet: { currently_owned_classes: req.params.classId },
+      }, (err, result) => {
+        if (err) return res.status(500).json({ msg: 'Database Error' });
+        if (result.modifiedCount === 0) {
+          return res.status(404).json({ msg: 'Instructor Not Found (????)' });
+        }
+        return res.status(200).json({ msg: 'Instructor Successfully Linked' });
+      });
+    });
   });
 });
 
+router.delete('/:classId/instructors/:instructorId'); // TODO
+
+router.use('/:classId/students', pagination());
 router.get('/:classId/students', [
   params('classId').isLength({ min: 1}),
 ], (req, res) => {
   req.db.collection('classes').findOne({ _id: req.params.classId}, (err, classDoc) => {
     if (err) return res.status(500).json({ msg: 'Class Not Found' });
     const studentIds = classDoc.students;
-    req.db.collection('students').find({ _id: { $in: studentIds} }).toArray((err, docs) => {
+    req.db.collection('students')
+    .find({ _id: { $in: studentIds} })
+    .skip(req.pagination.skip)
+    .limit(req.pagination.limit)
+    .toArray((err, docs) => {
       if (err) return res.status(500).json({ msg: 'Database Error'});
-      res.status(200).json(docs.map(instructorDocToResponse));
+      res.status(200).json(docs.map(studentDocToResponse));
     });
   });
 });
 
 router.put('/:classId/students/:studentId', [
-  param('studentId').isLength({ min:1 }),
+  param('classId').isLength({ min: 1 }),
+  param('studentId').isLength({ min: 1 }),
 ], (req, res) => {
-  req.db.collection('students').updateOne({ _id });
-  req.db.collection('instructors').count
-})
+  // make sure the student exists before adding
+  req.db.collection('instructors').countDocuments({ _id: req.params.studentId },
+      { limit: 1 }, (err, count) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (count !== 1) return res.status(404).json({ msg: 'Student Not Found' });
+      
+    req.db.collection('class').updateOne({
+      _id: req.params.classId,
+      active: true,
+    }, {
+      $addToSet: { students: req.params.studentId },
+    }, (err, result) => {
+      if (err) return res.status(500).json({ msg: 'Database Error' });
+      if (result.modifiedCount == 0) {
+        return res.status(404).json({ msg: 'Class not found or not active' });
+      }
+      req.db.collection('students').updateOne({ _id: req.params.instructorId }, {
+        $addToSet: { current_classes: req.params.classId },
+      }, (err, result) => {
+        if (err) return res.status(500).json({ msg: 'Database Error'});
+        if (result.modifiedCount === 0) {
+          return res.status(404).json({ msg: 'Student Not Found' });
+        }
+        return res.status(200).json({ msg: 'Student Successfully Added'});
+      });
+    });
+  });
+});
 
 module.exports = router;

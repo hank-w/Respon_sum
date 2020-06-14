@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, params } = require('express-validator');
 
+const { studentDocToResponse } = require('./get-students.js');
 const { getCurrentOrPastClasses } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
@@ -43,18 +44,7 @@ router.get('/:studentId', [
   req.db.collection('students').findOne({ _id: req.params.studentId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (!result) return res.status(404).json({ msg: 'Student Not Found' });
-    return res.status(200).json({
-      id: result._id,
-      name: result.name,
-      email: result.email,
-      studentNumber: result.student_number,
-      institution: result.institution,
-      performance: {
-        numCorrect: result.num_correct,
-        numIncorrect: result.num_correct,
-        numUnresponded: result.num_unresponded
-      }
-    });
+    return res.status(200).json(studentDocToResponse(result));
   });
 });
 
