@@ -377,24 +377,9 @@ traits:
                     "$ref": "instructor-retrieve.json"
                   }
                 }
-      post:
-        description: Add a new instructor to this class.
-        body:
-          application/json:
-            type: |
-              {
-                "type": "object",
-                "$schema": "http://json-schema.org/draft-07/schema",
-                "id": "http://jsonschema.net",
-                "properties": {
-                  "instructorId": {
-                    "type": "string"
-                  }
-                },
-                "required": "instructorId",
-                "additionalProperties": false
-              }
       /{instructorId}:
+        post:
+          description: Add a new instructor to this class.
         delete:
           description: |
             Remove an instructor from the class. Will respond with 403 Forbidden if this is the
@@ -416,24 +401,9 @@ traits:
                     "$ref": "student-retrieve.json"
                   }
                 }
-      post:
-        description: Add a student to the class.
-        body:
-          application/json:
-            type: |
-              {
-                "type": "object",
-                "$schema": "http://json-schema.org/draft-07/schema",
-                "id": "http://jsonschema.net",
-                "properties": {
-                  "studentId": {
-                    "type": "string"
-                  }
-                },
-                "required": "studentId",
-                "additionalProperties": false
-              }
       /{studentId}:
+        post:
+          description: Add a student to the class.
         delete:
           description: Delete a student from a class
         /performance:
