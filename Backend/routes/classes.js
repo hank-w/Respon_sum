@@ -4,6 +4,7 @@ const { body, params } = require('express-validator');
 const { studentDocToResponse } = require('./get-students.js');
 const { instructorDocToResponse } = require('./get-instructors.js');
 const { classDocToResponse } = require('./get-classes.js');
+const { responseDocToResponse } = require('./get-responses.js');
 const { statsDocToResponse } = require('./get-stats.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
@@ -331,7 +332,7 @@ router.get('/:classId/responses', [
   if (req.query.query) {
     query.$text = req.query.query;
   }
-  if (req.ordering.orderBy === 'correct' || req.ordering.orderBy === 'wrong') {
+  if (req.ordering.orderBy === 'correct' || req.ordering.orderBy === 'incorrect') {
     query.correct = { $exists: true };
   }
 
@@ -351,23 +352,14 @@ router.get('/:classId/responses', [
     case 'correct':
       cursor.sort(['correct', 'timestamp'], orderDir);
       break;
-    case 'wrong':
+    case 'incorrect':
       cursor.sort([['correct', inverseOrderDir], ['timestamp', orderDir]]);
       break;
   }
 
   cursor.toArray((err, docs) => {
-    if (err) r
-  });
-
-  req.db.collection('responses').findOne({ _id: req.params.classId }, (err, classDoc) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    if (!classDoc) return res.status(404).json({ msg: 'Class Not Found' });
-    const responseIds = classDoc.responses;
-    req.db.collection('responses').find({ _id: { $in: responseIds} }).toArray((err, docs) => {
-      if (err) return res.status(500).json({ msg: 'Database Error' });
-      res.status(200).json(docs.map(instructorDocToResponse));
-    });
+    return res.status(200).json(docs.map(responseDocToResponse));
   });
 });
 

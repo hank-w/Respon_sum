@@ -2,6 +2,7 @@ const express = require('express');
 const { body, params } = require('express-validator');
 
 const { studentDocToResponse } = require('./get-students.js');
+const { responseDocToResponse } = require('./get-responses.js');
 const { getCurrentOrPastClasses } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
@@ -113,32 +114,7 @@ router.get('/:studentId/responses', [
   
   cursor.toArray((err, docs) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    
-    let responses = [];
-    for (let doc of docs) {
-      let response = {
-        id: doc._id,
-        timestamp: doc.timestamp,
-        studentId: doc.student,
-        classId: doc['class'],
-        questionId: doc.question,
-        questionType: doc.question_type,
-      };
-      
-      if (doc.hasOwnProperty('correct')) {
-        response.correct = doc.correct;
-      }
-      if (doc.hasOwnProperty('answer_number')) {
-        response.answerNumber = doc.answer_number;
-      }
-      if (doc.hasOwnProperty('answer_text')) {
-        response.answerText = doc.answer_text;
-      }
-      
-      responses.push(response);
-    }
-    
-    res.status(200).json(responses);
+    return res.status(200).json(docs.map(responseDocToResponse));
   });
 });
 
