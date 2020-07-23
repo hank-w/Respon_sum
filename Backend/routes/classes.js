@@ -393,28 +393,39 @@ router.get('/:classId/questions', [
 router.post('/:classID/questions', [
   body('type').isLength({ min: 1 }),
 ], (req, res) => {
-  if (req.body.type === 'multiple-choice') {
-    req.db.collection('questions').insertOne({
-      questionText: req.body.questionText,
-      numAnswers: req.body.numAnswers,
-      correctAnswer: req.body.correctAnswer,
-    });
+  const doc = {
+    type: req.body.type,
+    asked: false,
+    timestamps: [],
+    responses: [],
+    viewable_by_students: false,
+    stats: [],
+    instructors: [],
+  };
+  if (req.body.questionText !== undefined) {
+    doc.question_text = req.body.questionText;
   }
-  if (req.body.type === 'short-answer') {
-    req.db.collection('questions').insertOne({
-      questionText: req.body.questionText,
-      numAnswers: 1,
-      answerText: req.body.answerText
-    })
-  }  
-   (err, result) => {
-     if (err) return res.status(500).json({ msg: 'Database Error'});
-     res.status(200).json({ id: result._id});
-   };
+  if (req.body.correctAnswer !== undefined) {
+    doc.correct_answer = req.body.correctAnswer;
+  }
+  if (req.body.type === 'multiple-choice') {
+    doc.num_answers = req.body.numAnswers;
+    if (req.body.answerTexts !== undefined) {
+      doc.answer_texts = req.body.answerTexts;
+    }
+  } else if (req.body.type !== 'short-answer') {
+    return res.status(400).error({ msg: 'Invalid Type' });
+  }
+  req.db.collection('questions').insertOne(doc, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error'});
+    res.status(200).json({ id: result._id});
+  });
 });
 
 router.get('/:classId/questions/questionId', [
   params('classId').isLength({ min: 1})
-], (req, res))
+], (req, res) => {
+
+});
 
 module.exports = router;
