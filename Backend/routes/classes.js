@@ -4,6 +4,7 @@ const { body, params } = require('express-validator');
 const { studentDocToResponse } = require('./get-students.js');
 const { instructorDocToResponse } = require('./get-instructors.js');
 const { classDocToResponse } = require('./get-classes.js');
+const { statsDocToResponse } = require('./get-stats.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
 const searching = require('../middleware/searching.js');
@@ -287,7 +288,7 @@ router.delete('/:classId/student/:studentId', [
     $pull: { students: req.params.studentId },
   }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    if (result.mofidiedCount !== 1) {
+    if (result.modifiedCount !== 1) {
       return res.status(404).json({ msg: 'Class not found or not active' });
     }
     req.db.collection('students').updateOne({ _id: req.params.studentId }, {
@@ -306,7 +307,68 @@ router.get('/:classId/student/:studentId/performance', [
   params('classId').isLength({ min: 1 }),
   params('studentId').isLength({ min: 1 }),
 ], (req, res) => {
+  req.db.collection('students').findOne({ _id: req.params.studentId }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (!result) return res.status(404).json({ msg: 'Student Not Found' });
+    if (!(req.params.classId in result.class_id_to_performance)) {
+      return res.status(400).json({ msg: 'Student Not In Class' });
+    }
+    const stats = result.class_id_to_performance[req.params.classId];
+    return res.status(200).json(statsDocToResponse(stats));
+  });
+});
 
+router.use('/:classId/responses', pagination());
+router.use('/:classId/responses', ordering(['recency', 'correct', 'incorrect'], 'recency'));
+router.use('/:classId/responses', searching());
+router.get('/:classId/responses', [
+  param('classId').isLength({ min: 1 }),
+], (req, res) => {
+  const query = {
+    'class': req.params.classId,
+  };
+
+  if (req.query.query) {
+    query.$text = req.query.query;
+  }
+  if (req.ordering.orderBy === 'correct' || req.ordering.orderBy === 'wrong') {
+    query.correct = { $exists: true };
+  }
+
+  const cursor = req.db.collection('responses')
+  .find(query)
+  .skip(req.pagination.skip)
+  .limit(req.pagination.limit);
+
+  const orderDir = req.ordering.order === 'asc' ? 1 : -1;
+  const inverseOrderDir = (orderDir === 1) ? -1 : 1;
+
+  switch (req.ordering.orderBy) {
+    case 'recency':
+    default:
+      cursor.sort('timestamp', inverseOrderDir);
+      break;
+    case 'correct':
+      cursor.sort(['correct', 'timestamp'], orderDir);
+      break;
+    case 'wrong':
+      cursor.sort([['correct', inverseOrderDir], ['timestamp', orderDir]]);
+      break;
+  }
+
+  cursor.toArray((err, docs) => {
+    if (err) r
+  });
+
+  req.db.collection('responses').findOne({ _id: req.params.classId }, (err, classDoc) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (!classDoc) return res.status(404).json({ msg: 'Class Not Found' });
+    const responseIds = classDoc.responses;
+    req.db.collection('responses').find({ _id: { $in: responseIds} }).toArray((err, docs) => {
+      if (err) return res.status(500).json({ msg: 'Database Error' });
+      res.status(200).json(docs.map(instructorDocToResponse));
+    });
+  });
 });
 
 module.exports = router;

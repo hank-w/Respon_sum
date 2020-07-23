@@ -174,9 +174,6 @@ object Stats {
   num_correct: int
   num_incorrect: int
   num_unresponded: int
-  correct_percent: float
-  incorrect_percent: float
-  unresponded_percent: float
 }
 
 enum QuestionType {
