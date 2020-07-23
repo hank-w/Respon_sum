@@ -4,6 +4,7 @@ const { body, params } = require('express-validator');
 const { studentDocToResponse } = require('./get-students.js');
 const { instructorDocToResponse } = require('./get-instructors.js');
 const { classDocToResponse } = require('./get-classes.js');
+const { questionDocToResponse } = require('./get-questions.js');
 const { responseDocToResponse } = require('./get-responses.js');
 const { statsDocToResponse } = require('./get-stats.js');
 const pagination = require('../middleware/pagination.js');
@@ -330,7 +331,7 @@ router.get('/:classId/responses', [
   };
 
   if (req.query.query) {
-    query.$text = req.query.query;
+    query.$text = req.searching.query;
   }
   if (req.ordering.orderBy === 'correct' || req.ordering.orderBy === 'incorrect') {
     query.correct = { $exists: true };
@@ -362,5 +363,58 @@ router.get('/:classId/responses', [
     return res.status(200).json(docs.map(responseDocToResponse));
   });
 });
+
+router.use('/:classId/questions', pagination());
+router.use('/:classId/questions', searching());
+router.get('/:classId/questions', [
+  param('classId').isLength({ min: 1 }),
+], (req, res) => {
+  const query = {
+    'class': req.params.classId,
+  };
+
+  if (req.query.query) {
+    query.$text = req.searching.query;
+  }
+  if (req.query.viewableByStudents !== undefined) {
+    query.viewable_by_students = req.query.viewableByStudents;
+  }
+  
+  req.db.collection('questions')
+  .find(query)
+  .skip(req.pagination.skip)
+  .limit(req.pagination.limit)
+  .toArray((err, docs) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    return res.status(200).json(docs.map(questionDocToResponse));
+  });
+});
+
+router.post('/:classID/questions', [
+  body('type').isLength({ min: 1 }),
+], (req, res) => {
+  if (req.body.type === 'multiple-choice') {
+    req.db.collection('questions').insertOne({
+      questionText: req.body.questionText,
+      numAnswers: req.body.numAnswers,
+      correctAnswer: req.body.correctAnswer,
+    });
+  }
+  if (req.body.type === 'short-answer') {
+    req.db.collection('questions').insertOne({
+      questionText: req.body.questionText,
+      numAnswers: 1,
+      answerText: req.body.answerText
+    })
+  }  
+   (err, result) => {
+     if (err) return res.status(500).json({ msg: 'Database Error'});
+     res.status(200).json({ id: result._id});
+   };
+});
+
+router.get('/:classId/questions/questionId', [
+  params('classId').isLength({ min: 1})
+], (req, res))
 
 module.exports = router;
