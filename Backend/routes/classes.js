@@ -302,4 +302,11 @@ router.delete('/:classId/student/:studentId', [
   });
 });
 
+router.get('/:classId/student/:studentId/performance', [
+  params('classId').isLength({ min: 1 }),
+  params('studentId').isLength({ min: 1 }),
+], (req, res) => {
+
+});
+
 module.exports = router;
