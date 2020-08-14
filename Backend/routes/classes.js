@@ -418,14 +418,90 @@ router.post('/:classID/questions', [
   }
   req.db.collection('questions').insertOne(doc, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error'});
-    res.status(200).json({ id: result._id});
+    res.status(200).json({ id: result._id });
   });
 });
 
-router.get('/:classId/questions/questionId', [
-  params('classId').isLength({ min: 1})
+router.get('/:classId/questions/:questionId', [
+  params('classId').isLength({ min: 1 }),
+  params('questionId').isLength({ min: 1 }),
 ], (req, res) => {
-
+  req.db.collection('questions').findOne({ _id: req.params.questionId }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    res.status(200).json(questionDocToResponse(result));
+  });
 });
+
+router.put('/:classId/questions/:questionId', [
+  params('classId').isLength({ min: 1 }),
+  params('questionId').isLength({ min: 1 }),
+  body('questionText').isLength({ min: 1 }),
+  body('type').isLength({ min: 1 }),
+], (req, res) => {
+  let toSet = {};
+  if (req.body.correctAnswer !== undefined) toSet.correctAnswer = req.body.correctAnswer;
+  if (type === "multiple-choice") {
+    toSet.numAnswers = req.body.numAnswers;
+    if (req.body.answerTexts !== undefined) toSet.answerTexts = req.body.answerTexts;
+  }
+  req.db.collection('questions').updateOne({ _id: req.params.classId }, {
+    $set: toSet
+  }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error'});
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({msg: 'Question Not Found'})
+    }
+  });
+});
+
+router.delete('/:classId/questions/:questionId', [
+  params('classId').isLength({ min: 1 }),
+  params('questionId').isLength({ min: 1 }),
+], (req, res) => {
+  req.db.collection('questions').deleteOne({ _id: req.params.questionId }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (result.deletedCount === 0) return res.status(404).json({ msg: 'Question Not Found' });
+    req.db.collection('classes').updateOne({ _id: req.params.classId }, {
+      $pull: {
+        questions: req.params.questionId,
+      }
+    }, (err, result) => {
+      if (err) return res.status(500).json({ msg: 'Database Error' });
+      if (result.modifiedCount === 0) {
+        return res.status(404).json({ msg: 'Class Not Found' });
+      }
+      return res.status(200).json({ msg: 'Question Successfully Deleted' });
+    });
+  });
+});
+
+router.get('/:classId/questions/:questionId/viewable-by-students', [
+  params('classId').isLength({ min: 1}),
+  params('questionId').isLength({ min: 1}),
+], (req, res) => {
+  req.db.collection('viewable-by-students').findOne({ _id: req.params.questionId }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    return res.status(200).json(questionDocToResponse(result));
+  });
+});
+
+router.put('/:classId/questions/:questionId/viewable-by-students', [
+  params('classId').isLength({ min: 1 }),
+  params('questionId').isLength({ min: 1 }),
+  body('viewableByStudents').isBoolean(),
+], (req, res) => {
+  req.db.collection('questions').updateOne({ _id: req.params.questionId }, {
+    $set: {
+      viewable_by_students: req.body.viewableByStudents === 'true',
+    }
+  }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ msg: 'Class Not Found' });
+    }
+    return res.status(200).json({ msg: 'Successfully Updated' });
+  });
+});
+
 
 module.exports = router;
