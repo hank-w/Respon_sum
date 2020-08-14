@@ -7,8 +7,8 @@ const students = require('./routes/students.js');
 const instructors = require('./routes/instructors.js');
 const classes = require('./routes/classes.js');
 
-const uri = 'mongodb://localhost/responsum';
-const dbName = 'responsum';
+const uri = 'mongodb://localhost';
+const dbName = 'test';
 
 var MongoClient = require('mongodb').MongoClient;
 var connection = undefined;

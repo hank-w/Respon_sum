@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb');
 const express = require('express');
 const { body, param } = require('express-validator');
 
@@ -31,7 +32,7 @@ router.post('/', [
 router.get('/:instructorId', [
   param('instructorID').isLength({ min: 1 })
 ], (req, res) => {
-  req.db.collection('instructors').findOne({ _id: req.params.instructorId }, (err, result) => {
+  req.db.collection('instructors').findOne({ _id: ObjectId(req.params.instructorId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error'});
     if (!result) return res.status(404).json({ msg: 'Not Found' });
     return res.status(200).json(instructorDocToResponse(result));
@@ -44,7 +45,7 @@ router.put('/:instructorId', [
   body('email').isEmail(),
   body('institution').isLength({ min: 1 }),
 ], (req, res) => {
-  req.db.collection('instructors').updateOne({ _id: req.params.studentId }, {
+  req.db.collection('instructors').updateOne({ _id: ObjectId(req.params.studentId ) }, {
     $set: {
       name: req.body.name,
       email: req.body.email,
@@ -62,7 +63,7 @@ router.put('/:instructorId', [
 router.delete('/:instructorId', [
   param('instructorId').isLength({ min: 1 })
 ], (req, res) => {
-  req.db.collection('instructors').deleteOne({ _id: req.params.instructorId }, (err, result) => {
+  req.db.collection('instructors').deleteOne({ _id: ObjectId(req.params.instructorId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.deletedCount === 0) return res.status(404).json({ msg: 'Instructor Not Found' });
     res.status(200).json({ msg: 'Instructor Deleted' });
