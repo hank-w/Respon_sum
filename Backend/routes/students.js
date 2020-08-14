@@ -1,5 +1,5 @@
 const express = require('express');
-const { body, params } = require('express-validator');
+const { body, param } = require('express-validator');
 
 
 const { studentDocToResponse } = require('./get-students.js');
@@ -41,9 +41,9 @@ router.post('/', [
 
 // query studentID
 router.get('/:studentId', [
-  params('studentId').isLength({ min: 1 })
+  param('studentId').isLength({ min: 1 })
 ], (req, res) => {
-  req.db.collection('students').findOne({ _id: req.params.studentId }, (err, result) => {
+  req.db.collection('students').findOne({ _id: req.param.studentId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (!result) return res.status(404).json({ msg: 'Student Not Found' });
     return res.status(200).json(studentDocToResponse(result));
@@ -51,13 +51,13 @@ router.get('/:studentId', [
 });
 
 router.put('/:studentId', [
-  params('studentId').isLength({ min: 1 }),
+  param('studentId').isLength({ min: 1 }),
   body('name').isLength({ min: 1 }),
   body('email').isEmail(),
   body('studentNumber').isLength({ min: 1 }),
   body('institution').isLength({ min: 1 })
 ], (req, res) => {
-  req.db.collection('students').updateOne({ _id: req.params.studentId }, {
+  req.db.collection('students').updateOne({ _id: req.param.studentId }, {
     $set: {
       name: req.body.name,
       email: req.body.email,
@@ -72,9 +72,9 @@ router.put('/:studentId', [
 });
 
 router.delete('/:studentId', [
-  params('studentId').isLength({ min: 1 })
+  param('studentId').isLength({ min: 1 })
 ], (req, res) => {
-  req.db.collection('students').deleteOne({ _id: req.params.studentId }, (err, result) => {
+  req.db.collection('students').deleteOne({ _id: req.param.studentId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.deletedCount === 0) return res.status(404).json({ msg: 'Student Not Found' });
     res.status(200).json({ msg: 'Student Deleted' });
@@ -84,10 +84,10 @@ router.delete('/:studentId', [
 router.use('/:studentId/responses', pagination());
 router.use('/:studentId/responses', ordering(['recency', 'correct', 'wrong'], 'recency'));
 router.get('/:studentId/responses', [
-  params('studentId').isLength({ min: 1 })
+  param('studentId').isLength({ min: 1 })
 ], (req, res) => {
   let query = {
-    student: req.params.studentId
+    student: req.param.studentId
   };
   
   if (req.ordering.orderBy === 'correct' || req.ordering.orderBy === 'wrong') {
@@ -121,12 +121,12 @@ router.get('/:studentId/responses', [
 
 router.use('/:studentId/current-classes', pagination());
 router.get('/:studentId/current-classes', [
-  params('studentId').isLength({ min: 1 })
-], getCurrentOrPastClasses(req => ({ students: req.params.studentId }), true));
+  param('studentId').isLength({ min: 1 })
+], getCurrentOrPastClasses(req => ({ students: req.param.studentId }), true));
 
 router.use('/:studentId/past-classes', pagination());
 router.get('/:studentId/past-classes', [
-  params('studentId').isLength({ min: 1 })
-], getCurrentOrPastClasses(req => ({ students: req.params.studentId }), false));
+  param('studentId').isLength({ min: 1 })
+], getCurrentOrPastClasses(req => ({ students: req.param.studentId }), false));
 
 module.exports = router;
