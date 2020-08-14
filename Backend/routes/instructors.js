@@ -31,7 +31,7 @@ router.post('/', [
 router.get('/:instructorId', [
   param('instructorID').isLength({ min: 1 })
 ], (req, res) => {
-  req.db.collection('instructors').findOne({ _id: req.param.instructorId }, (err, result) => {
+  req.db.collection('instructors').findOne({ _id: req.params.instructorId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error'});
     if (!result) return res.status(404).json({ msg: 'Not Found' });
     return res.status(200).json(instructorDocToResponse(result));
@@ -44,7 +44,7 @@ router.put('/:instructorId', [
   body('email').isEmail(),
   body('institution').isLength({ min: 1 }),
 ], (req, res) => {
-  req.db.collection('instructors').updateOne({ _id: req.param.studentId }, {
+  req.db.collection('instructors').updateOne({ _id: req.params.studentId }, {
     $set: {
       name: req.body.name,
       email: req.body.email,
@@ -62,7 +62,7 @@ router.put('/:instructorId', [
 router.delete('/:instructorId', [
   param('instructorId').isLength({ min: 1 })
 ], (req, res) => {
-  req.db.collection('instructors').deleteOne({ _id: req.param.instructorId }, (err, result) => {
+  req.db.collection('instructors').deleteOne({ _id: req.params.instructorId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.deletedCount === 0) return res.status(404).json({ msg: 'Instructor Not Found' });
     res.status(200).json({ msg: 'Instructor Deleted' });
@@ -78,7 +78,7 @@ router.get('/:instructorId/questions', [
   // query questions per instructor
   let cursor = req.db.collection('questions').find({
     instructors: {
-      $eq: req.param.instructorId
+      $eq: req.params.instructorId
     }
   }).skip(req.pagination.skip).limit(req.pagination.limit);
   
@@ -153,11 +153,11 @@ router.get('/:instructorId/questions', [
 router.use('/:instructorId/current-classes', pagination());
 router.get('/:instructorId/current-classes', [
   param('instructorId').isLength({ min: 1 })
-], getCurrentOrPastClasses(req => ({ instructors: req.param.instructorId }), true));
+], getCurrentOrPastClasses(req => ({ instructors: req.params.instructorId }), true));
 
 router.use('/:instructorId/past-classes', pagination());
 router.get('/:instructorId/past-classes', [ 
   param('instructorId').isLength({ min: 1 })
-], getCurrentOrPastClasses(req => ({ instructors : req.param.instructorId}), false));
+], getCurrentOrPastClasses(req => ({ instructors : req.params.instructorId}), false));
 
 module.exports = router;

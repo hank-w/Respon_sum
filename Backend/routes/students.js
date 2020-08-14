@@ -43,7 +43,7 @@ router.post('/', [
 router.get('/:studentId', [
   param('studentId').isLength({ min: 1 })
 ], (req, res) => {
-  req.db.collection('students').findOne({ _id: req.param.studentId }, (err, result) => {
+  req.db.collection('students').findOne({ _id: req.params.studentId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (!result) return res.status(404).json({ msg: 'Student Not Found' });
     return res.status(200).json(studentDocToResponse(result));
@@ -57,7 +57,7 @@ router.put('/:studentId', [
   body('studentNumber').isLength({ min: 1 }),
   body('institution').isLength({ min: 1 })
 ], (req, res) => {
-  req.db.collection('students').updateOne({ _id: req.param.studentId }, {
+  req.db.collection('students').updateOne({ _id: req.params.studentId }, {
     $set: {
       name: req.body.name,
       email: req.body.email,
@@ -74,7 +74,7 @@ router.put('/:studentId', [
 router.delete('/:studentId', [
   param('studentId').isLength({ min: 1 })
 ], (req, res) => {
-  req.db.collection('students').deleteOne({ _id: req.param.studentId }, (err, result) => {
+  req.db.collection('students').deleteOne({ _id: req.params.studentId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.deletedCount === 0) return res.status(404).json({ msg: 'Student Not Found' });
     res.status(200).json({ msg: 'Student Deleted' });
@@ -87,7 +87,7 @@ router.get('/:studentId/responses', [
   param('studentId').isLength({ min: 1 })
 ], (req, res) => {
   let query = {
-    student: req.param.studentId
+    student: req.params.studentId
   };
   
   if (req.ordering.orderBy === 'correct' || req.ordering.orderBy === 'wrong') {
@@ -122,11 +122,11 @@ router.get('/:studentId/responses', [
 router.use('/:studentId/current-classes', pagination());
 router.get('/:studentId/current-classes', [
   param('studentId').isLength({ min: 1 })
-], getCurrentOrPastClasses(req => ({ students: req.param.studentId }), true));
+], getCurrentOrPastClasses(req => ({ students: req.params.studentId }), true));
 
 router.use('/:studentId/past-classes', pagination());
 router.get('/:studentId/past-classes', [
   param('studentId').isLength({ min: 1 })
-], getCurrentOrPastClasses(req => ({ students: req.param.studentId }), false));
+], getCurrentOrPastClasses(req => ({ students: req.params.studentId }), false));
 
 module.exports = router;
