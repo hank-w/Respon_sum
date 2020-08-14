@@ -35,7 +35,7 @@ router.post('/', [
     responses: []
   }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    return res.status(200).json({ id: result._id });
+    return res.status(200).json({ msg: 'successful' });
   });
 });
 
