@@ -428,7 +428,7 @@ router.get('/:classId/questions/:questionId', [
 ], (req, res) => {
   req.db.collection('questions').findOne({ _id: req.params.questionId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    res.status(200).json(questionDocToResponse(result));
+    return res.status(200).json(questionDocToResponse(result));
   });
 });
 
@@ -479,9 +479,9 @@ router.get('/:classId/questions/:questionId/viewable-by-students', [
   params('classId').isLength({ min: 1}),
   params('questionId').isLength({ min: 1}),
 ], (req, res) => {
-  req.db.collection('viewable-by-students').findOne({ _id: req.params.questionId }, (err, result) => {
+  req.db.collection('questions').findOne({ _id: req.params.questionId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    return res.status(200).json(questionDocToResponse(result));
+    return res.status(200).json({ viewableByStudents: result.viewable_by_students });
   });
 });
 
@@ -503,5 +503,100 @@ router.put('/:classId/questions/:questionId/viewable-by-students', [
   });
 });
 
+router.use('/:instructorId/questions', pagination());
+router.use('/:instructorId/questions', ordering(['recency', 'correct', 'incorrect'], 'recency'));
+router.get('/:classId/questions/:questionId/responses', [
+  params('classId').isLength({ min: 1 }),
+  params('questionId').isLength({ min: 1 }),
+], (req, res) => {
+  let cursor = req.db.collection('responses').find({
+    question: req.params.questionId,
+  }).skip(req.pagination.skip).limit(req.pagination.limit);
+
+  let orderDir = req.ordering.order === 'asc' ? 1 : -1;
+  let inverseOrderDir = (orderDir === 1) ? -1 : 1;
+
+  switch (req.ordering.orderBy) {
+    case 'recency':
+    default:
+      cursor.sort('timestamp', inverseOrderDir);
+      break;
+    case 'correctPercent':
+      cursor.sort('correct', orderDir);
+      break;
+    case 'incorrectPercent':
+      cursor.sort('correct', inverseOrderDir);
+      break;
+  }
+
+  cursor.toArray((err, docs) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    return res.status(200).json(docs.map(responseDocToResponse));
+  });
+});
+
+router.get('/:classId/questions/:questionId/responses/:studentId', [
+  params('classId').isLength({ min: 1 }),
+  params('questionId').isLength({ min: 1 }),
+  params('studentId').isLength({ min: 1 }),
+], (req, res) => {
+  req.db.collection('responses').findOne({ student: req.params.studentId }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (!result) return res.status(404).json({ msg: 'Student Not Found' });
+    return res.status(200).json(responseDocToResponse(result));
+  });
+});
+
+router.put('/:classId/questions/:questionId/responses/:studentId', [
+  params('classId').isLength({ min: 1 }),
+  params('questionId').isLength({ min: 1 }),
+  params('studentId').isLength({ min: 1 }),
+  body('timestamp').isISO8601(),
+], (req, res) => {
+  req.db.collection('questions').findOne({ _id: req.body.questionId }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (!result) return res.status(404).json({ msg: 'Question Not Found' });
+
+    const questionType = result.type;
+    let toSet = { timestamp: req.body.timestamp };
+    if (questionType === 'multiple-choice') {
+      toSet.answerNumber = req.body.answerNumber;
+    } else {
+      toSet.answerText = req.body.answerText;
+    }
+    
+    req.db.collection('response').updateOne({ student: req.params.studentId }, {
+      $set: toSet
+    }, (err, result) => {
+      if (err) return res.status(500).json({ msg: 'Database Error' });
+      if (result.modifiedCount === 0) {
+        return res.status(404).json({ msg: 'Student Not Found' });
+      }
+      return result.status(200).json({ msg: 'Successfully Updated' });
+    });
+  });
+});
+
+router.delete('/:classId/questions/:questionId/responses/:studentId', [
+  params('classId').isLength({ min: 1 }),
+  params('questionId').isLength({ min: 1 }),
+  params('studentId').isLength({ min: 1 }),
+], (req, res) => {
+  req.db.collection('responses').deleteOne({ _id: req.params.studentId }, (err, result) => {
+    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if(result.deletedCount === 0) return res.status(404).json({ msg: 'Response Not Found'});
+    req.db.collection('responses').updateOne({ _id: req.params.studentId }, {
+      $pull: {
+        students: req.params.studentId,
+      }
+    }, (err, result) => {
+      if (err) return res.status(500).json({ msg: 'Database Error' });
+      if (result.modifiedCount === 0){
+        return res.status(404).json({ msg: 'Student Not Found'});
+      }
+      return res.status(200).json({ msg: 'Response Successfully Deleted'});
+    });
+  });
+});
 
 module.exports = router;

@@ -71,7 +71,7 @@ router.delete('/:instructorId', [
 
 router.use('/:instructorId/questions', pagination());
 router.use('/:instructorId/questions', ordering(
-  ['recency', 'correctPercent', 'incorrectPercent', 'unrespondedPercent'], 'recency'))
+  ['recency', 'correctPercent', 'incorrectPercent', 'unrespondedPercent'], 'recency'));
 router.get('/:instructorId/questions', [
   params('instructorId').isLength({ min: 1 })
 ], (req, res) => {
