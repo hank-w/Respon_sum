@@ -3,7 +3,7 @@ const app = express();
 
 const { validationResult } = require('express-validator');
 
-const students = require('./routes/students.jss');
+const students = require('./routes/students.js');
 const instructors = require('./routes/instructors.js');
 const classes = require('./routes/classes.js');
 
