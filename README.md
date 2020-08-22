@@ -1,7 +1,8 @@
 # Respon_sum
-Educational Classroom Software Product.
-
-Hi! Thanks for stopping by =)
-We are a team of two software developers from UWaterloo trying to make some helpful educational class software for our classmates and professors. 
-Updates and details will be provided as we continue to make progress on the software.
-See you soon!
+Educational Classroom Software Product. 
+Looking to build a platform to centralize software to assist with the learning experience.
+Featuring searchable, pageable, and orderable database of questions and answers students can access.
+Store and track student performance, classes of instructors and students, and question/response metrics and statistics.
+Will be implementing a student discussion and forums feature, integration with current classroom tools such as Learn, Schoology, Slack. 
+Utilizing MERN Stack for fullstack development.
+Planning on launching in Fall 2020 for use in professor Igor Ivkovic's class.
