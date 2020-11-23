@@ -6,3 +6,5 @@ Store and track student performance, classes of instructors and students, and qu
 Will be implementing a student discussion and forums feature, integration with current classroom tools such as Learn, Schoology, Slack. 
 Utilizing MERN Stack for fullstack development.
 Please reach out via GitHub if you would like to use this product or for additional information.
+
+![alt text](https://github.com/hank-w/Respon_sum/blob/master/Static/Images/Features.jpg?raw=true)
