@@ -17,22 +17,24 @@ const router = express.Router();
 
 // Note: when setting up the DB you must run
 // >>> db.classes.createIndex({ name: 'text' })
-// to allow searching over class names.
+// to allow searching over class names. Case insensitive, can search by letters
+// Note this might not be necessary now with $regex.
 // later down the line: implement searching by instructor and institution
 
 router.use('/', pagination());
 router.use('/', searching());
 router.get('/', (req, res) => {
   // check if parameters are filled with query
+  console.log(req);
   let query = {};
   if (req.query.active !== undefined) {
-    query.active = !!req.query.active;
+    query.active = (req.query.active === 'true');
   }
   if (req.query.institution !== undefined) {
     query.institution = req.query.institution + '';
   }
-  if (req.searching.searchText !== null) {
-    query.$text = { $search: req.searching.searchText };
+  if (req.searching.query !== null) {
+    query.name = { $regex: req.searching.query, $options: 'i' };
   }
   
   req.db.collection('classes')
@@ -40,7 +42,7 @@ router.get('/', (req, res) => {
   .skip(req.pagination.skip)
   .limit(req.pagination.limit)
   .toArray((err, docs) => {
-    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (err) return res.status(500).json({ msg: 'Database Error', error: err });
     res.status(200).json(docs.map(classDocToResponse));
   });
 });
@@ -55,7 +57,7 @@ router.post('/', [
 ], (req, res) => {
   // check that all the instructors exist
   req.db.collection('instructors').countDocuments({
-    _id: { $in: req.body.instructorIds }
+    _id: { $in: req.body.instructorIds.map(ObjectId) }
   }, { limit: req.body.instructorIds.length }, (err, count) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (count !== req.body.instructorIds.length) {
@@ -80,7 +82,7 @@ router.post('/', [
       }
     }, (err, result) => {
       if (err) return res.status(500).json({ msg: 'Database Error' });
-      res.status(200).json({ id: result._id });
+      res.status(200).json({ id: result.insertedId });
     });
   });
 });

@@ -3,7 +3,7 @@
 
 module.exports = () => (req, res, next) => {
   req.searching = {
-    query: req.query.query + '' || null
+    query: req.query.query ? req.query.query : null
   };
   
   next();

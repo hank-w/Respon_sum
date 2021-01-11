@@ -26,13 +26,13 @@ router.post('/', [
     questions: [],
   }, (err, result) => {
     if (err) return result.status(500).json({msg: 'Database Error'});
-    res.status(200).json({ id: result._id });
+    res.status(200).json({ id: result.insertedId });
   });
 });
 
-// route to get instructor ID
+// route to get instructor Id
 router.get('/:instructorId', [
-  param('instructorID').isLength({ min: 1 }),
+  param('instructorId').isLength({ min: 1 }),
   validate,
 ], (req, res) => {
   req.db.collection('instructors').findOne({ _id: ObjectId(req.params.instructorId ) }, (err, result) => {
@@ -43,13 +43,13 @@ router.get('/:instructorId', [
 });
 
 router.put('/:instructorId', [
-  param('instructorID').isLength({ min: 1 }),
+  param('instructorId').isLength({ min: 1 }),
   body('name').isLength({ min: 1 }),
   body('email').isEmail(),
   body('institution').isLength({ min: 1 }),
   validate,
 ], (req, res) => {
-  req.db.collection('instructors').updateOne({ _id: ObjectId(req.params.studentId ) }, {
+  req.db.collection('instructors').updateOne({ _id: ObjectId(req.params.instructorId ) }, {
     $set: {
       name: req.body.name,
       email: req.body.email,

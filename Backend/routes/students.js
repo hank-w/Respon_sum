@@ -71,7 +71,7 @@ router.put('/:studentId', [
   }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.modifiedCount === 0) return res.status(404).json({ msg: 'Student Not Found' });
-    res.status(200).json({ msg: 'Student Successfully Successfully Updated' });
+    res.status(200).json({ msg: 'Student Successfully Updated' });
   });
 });
 
