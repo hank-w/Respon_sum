@@ -58,7 +58,7 @@ router.put('/:instructorId', [
   }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.modifiedCount === 0) {
-      return res.status(404).json({ msg: 'Instructor Not Found' });
+      return res.status(404).json({ msg: 'Instructor Not Updated' });
     }
     res.status(200).json({ msg: 'Instructor Successfully Updated' });
   });
@@ -167,6 +167,6 @@ router.use('/:instructorId/past-classes', pagination());
 router.get('/:instructorId/past-classes', [ 
   param('instructorId').isLength({ min: 1 }),
   validate,
-], getCurrentOrPastClasses(req => ({ instructors : req.params.instructorId}), false));
+], getCurrentOrPastClasses(req => ({ instructors: req.params.instructorId}), false));
 
 module.exports = router;

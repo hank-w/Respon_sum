@@ -23,6 +23,6 @@ module.exports.getCurrentOrPastClasses = (queryFunc, isCurrent) => (req, res) =>
   .limit(req.pagination.limit)
   .toArray((err, docs) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    res.status(200).json(classDocsToResponses(docs));
+    res.status(200).json(docs.map(module.exports.classDocToResponse));
   });
 };

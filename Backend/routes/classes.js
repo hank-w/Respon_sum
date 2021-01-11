@@ -25,7 +25,6 @@ router.use('/', pagination());
 router.use('/', searching());
 router.get('/', (req, res) => {
   // check if parameters are filled with query
-  console.log(req);
   let query = {};
   if (req.query.active !== undefined) {
     query.active = (req.query.active === 'true');
@@ -117,7 +116,7 @@ router.put('/:classId', [
   }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.modifiedCount === 0) {
-      return res.status(404).json({ msg: 'Class Not Found' });
+      return res.status(404).json({ msg: 'Class Not Updated' });
     }
     res.status(200).json({ msg: 'Class Successfully Updated' });
   });
@@ -138,13 +137,14 @@ router.get('/:classId/active', [
   param('classId').isLength({ min: 1 }),
   validate,
 ], (req, res) => {
-  req.db.collection.findOne({ _id: ObjectId(req.params.classId ) }, (err, doc) => {
+  req.db.collection('classes').findOne({ _id: ObjectId(req.params.classId ) }, (err, doc) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (!doc) return res.status(404).json({ msg: 'Class Not Found' });
     res.status(200).json({ active: doc.active });
   });
 });
 
+// todo: fix inconsistencies when changing active
 router.put('/:classId/active', [
   param('classId').isLength({ min: 1 }),
   body('active').toBoolean(),
@@ -157,7 +157,7 @@ router.put('/:classId/active', [
   }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.modifiedCount === 0) {
-      return res.status(404).json({ msg: 'Class Not Found' });
+      return res.status(404).json({ msg: 'Class Not Updated' });
     }
     res.status(200).json({ msg: 'Class Active Status Successfully Updated' });
   });
@@ -171,7 +171,10 @@ router.get('/:classId/instructors', [
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (!classDoc) return res.status(404).json({ msg: 'Class Not Found' });
     const instructorIds = classDoc.instructors;
-    req.db.collection('instructors').find({ _id: { $in: instructorIds } }).toArray((err, docs) => {
+    req.db.collection('instructors')
+    .find({ _id: { $in: instructorIds.map(ObjectId) } })
+    .sort({ name: 1 })
+    .toArray((err, docs) => {
       if (err) return res.status(500).json({ msg: 'Database Error' });
       res.status(200).json(docs.map(instructorDocToResponse));
     });
@@ -189,15 +192,15 @@ router.put('/:classId/instructors/:instructorId', [
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (count !== 1) return res.status(404).json({ msg: 'Instructor Not Found' });
 
-    req.db.collection('class').updateOne({
-      _id: req.params.classId,
+    req.db.collection('classes').updateOne({
+      _id: ObjectId(req.params.classId),
       active: true,
     }, {
       $addToSet: { instructors: req.params.instructorId },
     }, (err, result) => {
       if (err) return res.status(500).json({ msg: 'Database Error' });
       if (result.modifiedCount === 0) {
-        return res.status(404).json({ msg: 'Class not found or not active' });
+        return res.status(404).json({ msg: 'Class not updated or not active' });
       }
   
       req.db.collection('instructors').updateOne({ _id: ObjectId(req.params.instructorId ) }, {
@@ -219,14 +222,14 @@ router.delete('/:classId/instructors/:instructorId', [
   validate,
 ], (req, res) => {
   req.db.collection('classes').updateOne({
-    _id: req.params.classId,
+    _id: ObjectId(req.params.classId),
     active: true,
   }, {
     $pull: { instructors: req.params.instructorId },
   }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.modifiedCount !== 1) {
-      return res.status(404).json({ msg: 'Class not found or not active' });
+      return res.status(404).json({ msg: 'Class not updated or not active' });
     }
     
     req.db.collection('instructors').updateOne({ _id: ObjectId(req.params.instructorId ) }, {
@@ -300,7 +303,7 @@ router.delete('/:classId/student/:studentId', [
   validate,
 ], (req, res) => {
   req.db.collection('classes').updateOne({
-    _id: req.params.classId,
+    _id: ObjectId(req.params.classId),
     active: true,
   }, {
     $pull: { students: req.params.studentId },
