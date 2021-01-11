@@ -11,6 +11,7 @@ const { statsDocToResponse } = require('./get-stats.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
 const searching = require('../middleware/searching.js');
+const validate = require('../middleware/validate.js');
 
 const router = express.Router();
 
@@ -50,6 +51,7 @@ router.post('/', [
   body('institution').isLength({ min: 1 }),
   body('instructorIds').custom(value => Array.isArray(value) && value.length >= 1),
   body('instructorIds.*').not().isEmpty(),
+  validate,
 ], (req, res) => {
   // check that all the instructors exist
   req.db.collection('instructors').countDocuments({
@@ -84,7 +86,8 @@ router.post('/', [
 });
 
 router.get('/:classId', [
-  param('classId').isLength({ min: 1 })
+  param('classId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('classes').findOne({ _id: ObjectId(req.params.classId ) }, (err, doc) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -100,6 +103,7 @@ router.put('/:classId', [
   body('institution').isLength({ min: 1 }),
   body('instructorIds').custom(value => Array.isArray(value) && value.length >= 1),
   body('instructorIds.*').not().isEmpty(),
+  validate,
 ], (req, res) => {
   req.db.collection('classes').updateOne({ _id: ObjectId(req.params.classId ) }, {
     $set: {
@@ -118,7 +122,8 @@ router.put('/:classId', [
 });
 
 router.delete('/:classId', [
-  param('classId').isLength({ min: 1 })
+  param('classId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('classes').deleteOne({ _id: ObjectId(req.params.classId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -128,7 +133,8 @@ router.delete('/:classId', [
 });
 
 router.get('/:classId/active', [
-  param('classId').isLength({ min: 1 })
+  param('classId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection.findOne({ _id: ObjectId(req.params.classId ) }, (err, doc) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -139,7 +145,8 @@ router.get('/:classId/active', [
 
 router.put('/:classId/active', [
   param('classId').isLength({ min: 1 }),
-  body('active').toBoolean()
+  body('active').toBoolean(),
+  validate,
 ], (req, res) => {
   req.db.collection('classes').updateOne({ _id: ObjectId(req.params.classId ) }, {
     $set: {
@@ -156,6 +163,7 @@ router.put('/:classId/active', [
 
 router.get('/:classId/instructors', [
   param('classId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('classes').findOne({ _id: ObjectId(req.params.classId ) }, (err, classDoc) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -171,6 +179,7 @@ router.get('/:classId/instructors', [
 router.put('/:classId/instructors/:instructorId', [
   param('classId').isLength({ min: 1 }),
   param('instructorId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   // make sure the instructor exists before adding
   req.db.collection('instructors').countDocuments({ _id: ObjectId(req.params.instructorId ) },
@@ -205,6 +214,7 @@ router.put('/:classId/instructors/:instructorId', [
 router.delete('/:classId/instructors/:instructorId', [
   param('classId').isLength({ min: 1 }),
   param('instructorId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('classes').updateOne({
     _id: req.params.classId,
@@ -232,6 +242,7 @@ router.delete('/:classId/instructors/:instructorId', [
 router.use('/:classId/students', pagination());
 router.get('/:classId/students', [
   param('classId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('classes').findOne({ _id: ObjectId(req.params.classId ) }, (err, classDoc) => {
     if (err) return res.status(500).json({ msg: 'Class Not Found' });
@@ -250,6 +261,7 @@ router.get('/:classId/students', [
 router.put('/:classId/students/:studentId', [
   param('classId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   // make sure the student exists before adding
   req.db.collection('instructors').countDocuments({ _id: ObjectId(req.params.studentId ) },
@@ -283,6 +295,7 @@ router.put('/:classId/students/:studentId', [
 router.delete('/:classId/student/:studentId', [
   param('classId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('classes').updateOne({
     _id: req.params.classId,
@@ -309,6 +322,7 @@ router.delete('/:classId/student/:studentId', [
 router.get('/:classId/student/:studentId/performance', [
   param('classId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('students').findOne({ _id: ObjectId(req.params.studentId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -326,6 +340,7 @@ router.use('/:classId/responses', ordering(['recency', 'correct', 'incorrect'], 
 router.use('/:classId/responses', searching());
 router.get('/:classId/responses', [
   param('classId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   const query = {
     'class': req.params.classId,
@@ -369,6 +384,7 @@ router.use('/:classId/questions', pagination());
 router.use('/:classId/questions', searching());
 router.get('/:classId/questions', [
   param('classId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   const query = {
     'class': req.params.classId,
@@ -393,6 +409,7 @@ router.get('/:classId/questions', [
 
 router.post('/:classID/questions', [
   body('type').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   const doc = {
     type: req.body.type,
@@ -426,6 +443,7 @@ router.post('/:classID/questions', [
 router.get('/:classId/questions/:questionId', [
   param('classId').isLength({ min: 1 }),
   param('questionId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('questions').findOne({ _id: ObjectId(req.params.questionId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -438,6 +456,7 @@ router.put('/:classId/questions/:questionId', [
   param('questionId').isLength({ min: 1 }),
   body('questionText').isLength({ min: 1 }),
   body('type').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   let toSet = {};
   if (req.body.correctAnswer !== undefined) toSet.correctAnswer = req.body.correctAnswer;
@@ -458,6 +477,7 @@ router.put('/:classId/questions/:questionId', [
 router.delete('/:classId/questions/:questionId', [
   param('classId').isLength({ min: 1 }),
   param('questionId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('questions').deleteOne({ _id: ObjectId(req.params.questionId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -479,6 +499,7 @@ router.delete('/:classId/questions/:questionId', [
 router.get('/:classId/questions/:questionId/viewable-by-students', [
   param('classId').isLength({ min: 1}),
   param('questionId').isLength({ min: 1}),
+  validate,
 ], (req, res) => {
   req.db.collection('questions').findOne({ _id: ObjectId(req.params.questionId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -490,6 +511,7 @@ router.put('/:classId/questions/:questionId/viewable-by-students', [
   param('classId').isLength({ min: 1 }),
   param('questionId').isLength({ min: 1 }),
   body('viewableByStudents').isBoolean(),
+  validate,
 ], (req, res) => {
   req.db.collection('questions').updateOne({ _id: ObjectId(req.params.questionId ) }, {
     $set: {
@@ -509,6 +531,7 @@ router.use('/:instructorId/questions', ordering(['recency', 'correct', 'incorrec
 router.get('/:classId/questions/:questionId/responses', [
   param('classId').isLength({ min: 1 }),
   param('questionId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   let cursor = req.db.collection('responses').find({
     question: req.params.questionId,
@@ -540,6 +563,7 @@ router.get('/:classId/questions/:questionId/responses/:studentId', [
   param('classId').isLength({ min: 1 }),
   param('questionId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('responses').findOne({ student: req.params.studentId }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -553,6 +577,7 @@ router.put('/:classId/questions/:questionId/responses/:studentId', [
   param('questionId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
   body('timestamp').isISO8601(),
+  validate,
 ], (req, res) => {
   req.db.collection('questions').findOne({ _id: ObjectId(req.body.questionId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -582,6 +607,7 @@ router.delete('/:classId/questions/:questionId/responses/:studentId', [
   param('classId').isLength({ min: 1 }),
   param('questionId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('responses').deleteOne({ _id: ObjectId(req.params.studentId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });

@@ -6,6 +6,7 @@ const { instructorDocToResponse } = require('./get-instructors.js');
 const { getCurrentOrPastClasses } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
+const validate = require('../middleware/validate.js');
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router.post('/', [
   body('name').isLength({ min: 1 }),
   body('email').isEmail(),
   body('institution').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('instructors').insertOne({
     name: req.body.name,
@@ -30,7 +32,8 @@ router.post('/', [
 
 // route to get instructor ID
 router.get('/:instructorId', [
-  param('instructorID').isLength({ min: 1 })
+  param('instructorID').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('instructors').findOne({ _id: ObjectId(req.params.instructorId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error'});
@@ -44,6 +47,7 @@ router.put('/:instructorId', [
   body('name').isLength({ min: 1 }),
   body('email').isEmail(),
   body('institution').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('instructors').updateOne({ _id: ObjectId(req.params.studentId ) }, {
     $set: {
@@ -61,7 +65,8 @@ router.put('/:instructorId', [
 });
 
 router.delete('/:instructorId', [
-  param('instructorId').isLength({ min: 1 })
+  param('instructorId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('instructors').deleteOne({ _id: ObjectId(req.params.instructorId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -74,7 +79,8 @@ router.use('/:instructorId/questions', pagination());
 router.use('/:instructorId/questions', ordering(
   ['recency', 'correctPercent', 'incorrectPercent', 'unrespondedPercent'], 'recency'));
 router.get('/:instructorId/questions', [
-  param('instructorId').isLength({ min: 1 })
+  param('instructorId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   // query questions per instructor
   let cursor = req.db.collection('questions').find({
@@ -153,12 +159,14 @@ router.get('/:instructorId/questions', [
 
 router.use('/:instructorId/current-classes', pagination());
 router.get('/:instructorId/current-classes', [
-  param('instructorId').isLength({ min: 1 })
+  param('instructorId').isLength({ min: 1 }),
+  validate,
 ], getCurrentOrPastClasses(req => ({ instructors: req.params.instructorId }), true));
 
 router.use('/:instructorId/past-classes', pagination());
 router.get('/:instructorId/past-classes', [ 
-  param('instructorId').isLength({ min: 1 })
+  param('instructorId').isLength({ min: 1 }),
+  validate,
 ], getCurrentOrPastClasses(req => ({ instructors : req.params.instructorId}), false));
 
 module.exports = router;

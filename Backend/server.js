@@ -1,8 +1,6 @@
 const express = require('express');
 const app = express();
 
-const { validationResult } = require('express-validator');
-
 const students = require('./routes/students.js');
 const instructors = require('./routes/instructors.js');
 const classes = require('./routes/classes.js');
@@ -28,15 +26,6 @@ app.use(function expressMongoDb(req, res, next) {
       connection = undefined;
       next(err);
     });
-});
-
-app.use((req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  } else {
-    next();
-  }
 });
 
 app.use(express.json());

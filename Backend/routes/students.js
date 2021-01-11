@@ -7,6 +7,7 @@ const { responseDocToResponse } = require('./get-responses.js');
 const { getCurrentOrPastClasses } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
+const validate = require('../middleware/validate.js');
 
 const router = express.Router();
 
@@ -14,7 +15,8 @@ router.post('/', [
   body('name').isLength({ min: 1 }),
   body('email').isEmail(),
   body('studentNumber').isLength({ min: 1 }),
-  body('institution').isLength({ min: 1 })
+  body('institution').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('students').insertOne({
     name: req.body.name,
@@ -41,7 +43,8 @@ router.post('/', [
 
 // query studentID
 router.get('/:studentId', [
-  param('studentId').isLength({ min: 1 })
+  param('studentId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('students').findOne({ _id: ObjectId(req.params.studentId) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -55,7 +58,8 @@ router.put('/:studentId', [
   body('name').isLength({ min: 1 }),
   body('email').isEmail(),
   body('studentNumber').isLength({ min: 1 }),
-  body('institution').isLength({ min: 1 })
+  body('institution').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('students').updateOne({ _id: ObjectId(req.params.studentId) }, {
     $set: {
@@ -72,7 +76,8 @@ router.put('/:studentId', [
 });
 
 router.delete('/:studentId', [
-  param('studentId').isLength({ min: 1 })
+  param('studentId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   req.db.collection('students').deleteOne({ _id: ObjectId(req.params.studentId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
@@ -84,7 +89,8 @@ router.delete('/:studentId', [
 router.use('/:studentId/responses', pagination());
 router.use('/:studentId/responses', ordering(['recency', 'correct', 'wrong'], 'recency'));
 router.get('/:studentId/responses', [
-  param('studentId').isLength({ min: 1 })
+  param('studentId').isLength({ min: 1 }),
+  validate,
 ], (req, res) => {
   let query = {
     student: req.params.studentId
@@ -121,12 +127,14 @@ router.get('/:studentId/responses', [
 
 router.use('/:studentId/current-classes', pagination());
 router.get('/:studentId/current-classes', [
-  param('studentId').isLength({ min: 1 })
+  param('studentId').isLength({ min: 1 }),
+  validate,
 ], getCurrentOrPastClasses(req => ({ students: req.params.studentId }), true));
 
 router.use('/:studentId/past-classes', pagination());
 router.get('/:studentId/past-classes', [
-  param('studentId').isLength({ min: 1 })
+  param('studentId').isLength({ min: 1 }),
+  validate,
 ], getCurrentOrPastClasses(req => ({ students: req.params.studentId }), false));
 
 module.exports = router;
