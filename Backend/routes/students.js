@@ -4,7 +4,7 @@ const { body, param } = require('express-validator');
 
 const { studentDocToResponse } = require('./get-students.js');
 const { responseDocToResponse } = require('./get-responses.js');
-const { getCurrentOrPastClasses } = require('./get-classes.js');
+const { getClasses } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
 const validate = require('../middleware/validate.js');
@@ -23,8 +23,7 @@ router.post('/', [
     email: req.body.email,
     student_number: req.body.studentNumber,
     institution: req.body.institution,
-    current_classes: [],
-    prior_classes: [],
+    classes: [],
     class_id_to_performance: {},
     overall_performance: {
       num_correct: 0,
@@ -125,16 +124,10 @@ router.get('/:studentId/responses', [
   });
 });
 
-router.use('/:studentId/current-classes', pagination());
-router.get('/:studentId/current-classes', [
+router.use('/:studentId/classes', pagination());
+router.get('/:studentId/classes', [
   param('studentId').isLength({ min: 1 }),
   validate,
-], getCurrentOrPastClasses(req => ({ students: req.params.studentId }), true));
-
-router.use('/:studentId/past-classes', pagination());
-router.get('/:studentId/past-classes', [
-  param('studentId').isLength({ min: 1 }),
-  validate,
-], getCurrentOrPastClasses(req => ({ students: req.params.studentId }), false));
+], getClasses(req => ({ students: req.params.studentId })));
 
 module.exports = router;

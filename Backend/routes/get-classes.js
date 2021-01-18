@@ -13,9 +13,8 @@ module.exports.classDocToResponse = function classDocToResponse(doc) {
 }
 
 // queryFunc: req => query to be included in the find query
-module.exports.getCurrentOrPastClasses = (queryFunc, isCurrent) => (req, res) => {
+module.exports.getClasses = queryFunc => (req, res) => {
   let query = queryFunc(req);
-  query.active = isCurrent;
   
   req.db.collection('classes')
   .find(query)

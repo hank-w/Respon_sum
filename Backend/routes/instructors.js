@@ -3,7 +3,7 @@ const express = require('express');
 const { body, param } = require('express-validator');
 
 const { instructorDocToResponse } = require('./get-instructors.js');
-const { getCurrentOrPastClasses } = require('./get-classes.js');
+const { getClasses } = require('./get-classes.js');
 const pagination = require('../middleware/pagination.js');
 const ordering = require('../middleware/ordering.js');
 const validate = require('../middleware/validate.js');
@@ -20,8 +20,7 @@ router.post('/', [
     name: req.body.name,
     email: req.body.email,
     institution: req.body.institution,
-    currently_owned_classes: [],
-    prior_owned_classes: [],
+    owned_classes: [],
     class_id_to_performance: {},
     questions: [],
   }, (err, result) => {
@@ -157,16 +156,10 @@ router.get('/:instructorId/questions', [
   });
 });
 
-router.use('/:instructorId/current-classes', pagination());
-router.get('/:instructorId/current-classes', [
+router.use('/:instructorId/classes', pagination());
+router.get('/:instructorId/classes', [
   param('instructorId').isLength({ min: 1 }),
   validate,
-], getCurrentOrPastClasses(req => ({ instructors: req.params.instructorId }), true));
-
-router.use('/:instructorId/past-classes', pagination());
-router.get('/:instructorId/past-classes', [ 
-  param('instructorId').isLength({ min: 1 }),
-  validate,
-], getCurrentOrPastClasses(req => ({ instructors: req.params.instructorId}), false));
+], getClasses(req => ({ instructors: req.params.instructorId })));
 
 module.exports = router;

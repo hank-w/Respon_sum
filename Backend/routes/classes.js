@@ -204,7 +204,7 @@ router.put('/:classId/instructors/:instructorId', [
       }
   
       req.db.collection('instructors').updateOne({ _id: ObjectId(req.params.instructorId ) }, {
-        $addToSet: { currently_owned_classes: req.params.classId },
+        $addToSet: { owned_classes: req.params.classId },
       }, (err, result) => {
         if (err) return res.status(500).json({ msg: 'Database Error' });
         if (result.modifiedCount === 0) {
@@ -233,7 +233,7 @@ router.delete('/:classId/instructors/:instructorId', [
     }
     
     req.db.collection('instructors').updateOne({ _id: ObjectId(req.params.instructorId ) }, {
-      $pull: { currently_owned_classes: req.params.classId },
+      $pull: { owned_classes: req.params.classId },
     }, (err, result) => {
       if (err) return res.status(500).json({ msg: 'Database Error' });
       if (result.modifiedCount === 0) {
@@ -285,7 +285,7 @@ router.put('/:classId/students/:studentId', [
         return res.status(404).json({ msg: 'Class not found or not active' });
       }
       req.db.collection('students').updateOne({ _id: ObjectId(req.params.instructorId ) }, {
-        $addToSet: { current_classes: req.params.classId },
+        $addToSet: { classes: req.params.classId },
       }, (err, result) => {
         if (err) return res.status(500).json({ msg: 'Database Error' });
         if (result.modifiedCount === 0) {
@@ -313,7 +313,7 @@ router.delete('/:classId/student/:studentId', [
       return res.status(404).json({ msg: 'Class not found or not active' });
     }
     req.db.collection('students').updateOne({ _id: ObjectId(req.params.studentId ) }, {
-      $pull: { current_classes: req.params.classId },
+      $pull: { classes: req.params.classId },
     }, (err, result) => {
       if (err) return res.status(500).json({ msg: 'Database Error' });
       if (result.modifiedCount === 0) {
