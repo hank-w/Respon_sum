@@ -92,8 +92,7 @@ Student:
   institution: string
 
   ( other identifying info we ask for on sign up )
-  current_classes: [ class ids ]
-  prior_classes: [ class ids ]  (Student inherits Class, vars questions right,wrong,unanswered,etc.)
+  classes: [ class ids ]
   
   class_id_to_performance: { map of class id to Stats }
   
@@ -110,8 +109,7 @@ Instructor:
   institution: string
   ( other identifying info )
   
-  currently_owned_classes: [ class ids ]
-  prior_owned_classes: [ class ids ]
+  owned_classes: [ class ids ]
   
   **(if question format, store question and possible reponses)
   questions: [ question ids ] (%correct, %answered,)

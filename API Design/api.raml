@@ -113,31 +113,11 @@ traits:
                   "$ref": "response-retrieve.json"
                 }
               }
-    /current-classes:
-      description: A list of active classes in which the student is currently registered.
+    /classes:
+      description: A list of classes in which the student is currently registered.
       get:
         description: |
           Get the paginated list of classes in which the student is currently registered.
-          The classes are sorted descending by date joined.
-        is:
-          - pageable
-        body:
-          application/json:
-            type: |
-              {
-                "type": "array",
-                "$schema": "http://json-schema.org/draft-07/schema",
-                "id": "http://jsonschema.net",
-                "items": {
-                  "$ref": "class-retrieve.json"
-                }
-              }
-    /past-classes:
-      description: A list of inactive classes in which the student was previously registered.
-      # TODO: searching through past classes? Maybe after three terms.
-      get:
-        description: |
-          Get the paginated list of classes in which the student was previously registered.
           The classes are sorted descending by date joined.
         is:
           - pageable
@@ -210,31 +190,11 @@ traits:
                   "$ref": "question-retrieve.json"
                 }
               }
-    /current-classes:
-      description: A list of all active classes currently owned by the instructor.
+    /classes:
+      description: A list of all classes currently owned by the instructor.
       get:
         description: |
-          Get the paginated list of classes currently active.
-          The classes are sorted descending by date joined.
-        is:
-          - pageable
-        body:
-          application/json:
-            type: |
-              {
-                "type": "array",
-                "$schema": "http://json-schema.org/draft-07/schema",
-                "id": "http://jsonschema.net",
-                "items": {
-                  "$ref": "class-retrieve.json"
-                }
-              }
-    /past-classes:
-      description: A list of all inactive classes previously owned by the instructor.
-      # TODO: searching through past classes? Maybe after three terms.
-      get:
-        description: |
-          Get the paginated list of classes previously owned by the instructor.
+          Get the paginated list of classes.
           The classes are sorted descending by date joined.
         is:
           - pageable
