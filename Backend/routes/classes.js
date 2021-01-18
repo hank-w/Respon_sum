@@ -446,9 +446,17 @@ router.post('/:classID/questions', [
     return res.status(400).error({ msg: 'Invalid Type' });
   }
   req.db.collection('questions').insertOne(doc, (err, result) => {
-    console.log("db lookup");
     if (err) return res.status(500).json({ msg: 'Database Error'});
-    res.status(200).json({ id: result.insertedId });
+    // not working, hitting class not found error
+    req.db.collection('classes').updateOne({ _id: ObjectId(req.params.classId) }, {
+      $push: { questions: result.insertedId + '' }
+    }, (err, classResult) => {
+      if (err) return res.status(500).json({ msg: 'Database Error' });
+      if (classResult.modifiedCount === 0) {
+        return res.status(404).json({ msg: 'Class Not Found' });
+      }
+      res.status(200).json({ id: result.insertedId });
+    });
   });
 });
 
@@ -459,6 +467,7 @@ router.get('/:classId/questions/:questionId', [
 ], (req, res) => {
   req.db.collection('questions').findOne({ _id: ObjectId(req.params.questionId ) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (!result) return res.status(404).json({ msg: 'Question Not Found' });
     return res.status(200).json(questionDocToResponse(result));
   });
 });
@@ -466,23 +475,23 @@ router.get('/:classId/questions/:questionId', [
 router.put('/:classId/questions/:questionId', [
   param('classId').isLength({ min: 1 }),
   param('questionId').isLength({ min: 1 }),
-  body('questionText').isLength({ min: 1 }),
   body('type').isLength({ min: 1 }),
   validate,
 ], (req, res) => {
   let toSet = {};
-  if (req.body.correctAnswer !== undefined) toSet.correctAnswer = req.body.correctAnswer;
-  if (type === "multiple-choice") {
-    toSet.numAnswers = req.body.numAnswers;
-    if (req.body.answerTexts !== undefined) toSet.answerTexts = req.body.answerTexts;
+  if (req.body.correctAnswer !== undefined) toSet.correct_answer = req.body.correctAnswer;
+  if (req.body.type === "multiple-choice") {
+    toSet.num_answers = req.body.numAnswers;
+    if (req.body.answerTexts !== undefined) toSet.answer_texts = req.body.answerTexts;
   }
-  req.db.collection('questions').updateOne({ _id: ObjectId(req.params.classId ) }, {
+  req.db.collection('questions').updateOne({ _id: ObjectId(req.params.questionId ) }, {
     $set: toSet
   }, (err, result) => {
-    if (err) return res.status(500).json({ msg: 'Database Error'});
+    if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.modifiedCount === 0) {
-      return res.status(404).json({msg: 'Question Not Found'})
+      return res.status(404).json({ msg: 'Question not found, or not updated' });
     }
+    return res.status(200).json({ msg: 'Question Succesfully Updated' });
   });
 });
 
