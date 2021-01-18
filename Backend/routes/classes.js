@@ -253,7 +253,7 @@ router.get('/:classId/students', [
     if (err) return res.status(500).json({ msg: 'Class Not Found' });
     const studentIds = classDoc.students;
     req.db.collection('students')
-    .find({ _id: { $in: studentIds} })
+    .find({ _id: { $in: studentIds.map(ObjectId) } })
     .skip(req.pagination.skip)
     .limit(req.pagination.limit)
     .toArray((err, docs) => {
@@ -269,27 +269,32 @@ router.put('/:classId/students/:studentId', [
   validate,
 ], (req, res) => {
   // make sure the student exists before adding
-  req.db.collection('instructors').countDocuments({ _id: ObjectId(req.params.studentId ) },
+  req.db.collection('students').countDocuments({ _id: ObjectId(req.params.studentId ) },
       { limit: 1 }, (err, count) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (count !== 1) return res.status(404).json({ msg: 'Student Not Found' });
       
-    req.db.collection('class').updateOne({
-      _id: req.params.classId,
+    req.db.collection('classes').updateOne({
+      _id: ObjectId(req.params.classId),
       active: true,
     }, {
       $addToSet: { students: req.params.studentId },
     }, (err, result) => {
       if (err) return res.status(500).json({ msg: 'Database Error' });
       if (result.modifiedCount == 0) {
-        return res.status(404).json({ msg: 'Class not found or not active' });
+        return res.status(404).json({ msg: 'Class not found or not active, or already linked' });
       }
-      req.db.collection('students').updateOne({ _id: ObjectId(req.params.instructorId ) }, {
+      req.db.collection('students').updateOne({ _id: ObjectId(req.params.studentId ) }, {
         $addToSet: { classes: req.params.classId },
+        $set: { ['class_id_to_performance.' + req.params.classId]: {
+          num_correct: 0,
+          num_incorrect: 0,
+          num_unresponded: 0,
+        } },
       }, (err, result) => {
         if (err) return res.status(500).json({ msg: 'Database Error' });
         if (result.modifiedCount === 0) {
-          return res.status(404).json({ msg: 'Student Not Found' });
+          return res.status(404).json({ msg: 'Student not found or already linked' });
         }
         return res.status(200).json({ msg: 'Student Successfully Linked' });
       });
@@ -297,7 +302,7 @@ router.put('/:classId/students/:studentId', [
   });
 });
 
-router.delete('/:classId/student/:studentId', [
+router.delete('/:classId/students/:studentId', [
   param('classId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
   validate,
@@ -314,6 +319,7 @@ router.delete('/:classId/student/:studentId', [
     }
     req.db.collection('students').updateOne({ _id: ObjectId(req.params.studentId ) }, {
       $pull: { classes: req.params.classId },
+      $unset: { ['class_id_to_performance.' + req.params.classId]: '' }
     }, (err, result) => {
       if (err) return res.status(500).json({ msg: 'Database Error' });
       if (result.modifiedCount === 0) {
@@ -324,7 +330,7 @@ router.delete('/:classId/student/:studentId', [
   });
 });
 
-router.get('/:classId/student/:studentId/performance', [
+router.get('/:classId/students/:studentId/performance', [
   param('classId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
   validate,
@@ -440,8 +446,9 @@ router.post('/:classID/questions', [
     return res.status(400).error({ msg: 'Invalid Type' });
   }
   req.db.collection('questions').insertOne(doc, (err, result) => {
+    console.log("db lookup");
     if (err) return res.status(500).json({ msg: 'Database Error'});
-    res.status(200).json({ id: result._id });
+    res.status(200).json({ id: result.insertedId });
   });
 });
 
