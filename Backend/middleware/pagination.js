@@ -10,7 +10,7 @@ module.exports = () => (req, res, next) => {
   
   req.pagination = {
     skip: offset,
-    limit: limit
+    limit: limit,
   };
   
   next();

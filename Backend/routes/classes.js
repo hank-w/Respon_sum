@@ -402,12 +402,12 @@ router.get('/:classId/questions', [
   };
 
   if (req.query.query) {
-    query.$text = req.searching.query;
+    query.$text = req.query.query;
   }
   if (req.query.viewableByStudents !== undefined) {
     query.viewable_by_students = req.query.viewableByStudents;
   }
-  
+
   req.db.collection('questions')
   .find(query)
   .skip(req.pagination.skip)
@@ -418,11 +418,12 @@ router.get('/:classId/questions', [
   });
 });
 
-router.post('/:classID/questions', [
+router.post('/:classId/questions', [
   body('type').isLength({ min: 1 }),
   validate,
 ], (req, res) => {
   const doc = {
+    'class': req.params.classId,
     type: req.body.type,
     asked: false,
     timestamps: [],
@@ -447,7 +448,6 @@ router.post('/:classID/questions', [
   }
   req.db.collection('questions').insertOne(doc, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error'});
-    // not working, hitting class not found error
     req.db.collection('classes').updateOne({ _id: ObjectId(req.params.classId) }, {
       $push: { questions: result.insertedId + '' }
     }, (err, classResult) => {
