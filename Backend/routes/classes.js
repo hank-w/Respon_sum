@@ -401,11 +401,15 @@ router.get('/:classId/questions', [
     'class': req.params.classId,
   };
 
-  if (req.query.query) {
-    query.$text = req.query.query;
+  if (req.searching.query) {
+    query.$or = [
+      { correct_answer: { '$regex': req.searching.query, '$options': 'i' } },
+      { question_text: { '$regex': req.searching.query, '$options': 'i' } },
+      { answer_texts: { '$regex': req.searching.query, '$options': 'i' } },
+    ];
   }
   if (req.query.viewableByStudents !== undefined) {
-    query.viewable_by_students = req.query.viewableByStudents;
+    query.viewable_by_students = (req.query.viewableByStudents === 'true');
   }
 
   req.db.collection('questions')
@@ -413,7 +417,7 @@ router.get('/:classId/questions', [
   .skip(req.pagination.skip)
   .limit(req.pagination.limit)
   .toArray((err, docs) => {
-    if (err) return res.status(500).json({ msg: 'Database Error' });
+    if (err) return res.status(500).json({ msg: 'Database Error', err });
     return res.status(200).json(docs.map(questionDocToResponse));
   });
 });
@@ -447,7 +451,7 @@ router.post('/:classId/questions', [
     return res.status(400).error({ msg: 'Invalid Type' });
   }
   req.db.collection('questions').insertOne(doc, (err, result) => {
-    if (err) return res.status(500).json({ msg: 'Database Error'});
+    if (err) return res.status(500).json({ msg: 'Database Error' });
     req.db.collection('classes').updateOne({ _id: ObjectId(req.params.classId) }, {
       $push: { questions: result.insertedId + '' }
     }, (err, classResult) => {
@@ -522,7 +526,7 @@ router.get('/:classId/questions/:questionId/viewable-by-students', [
   param('questionId').isLength({ min: 1}),
   validate,
 ], (req, res) => {
-  req.db.collection('questions').findOne({ _id: ObjectId(req.params.questionId ) }, (err, result) => {
+  req.db.collection('questions').findOne({ _id: ObjectId(req.params.questionId) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     return res.status(200).json({ viewableByStudents: result.viewable_by_students });
   });
@@ -534,14 +538,14 @@ router.put('/:classId/questions/:questionId/viewable-by-students', [
   body('viewableByStudents').isBoolean(),
   validate,
 ], (req, res) => {
-  req.db.collection('questions').updateOne({ _id: ObjectId(req.params.questionId ) }, {
+  req.db.collection('questions').updateOne({ _id: ObjectId(req.params.questionId) }, {
     $set: {
-      viewable_by_students: req.body.viewableByStudents === 'true',
+      viewable_by_students: req.body.viewableByStudents,
     }
   }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (result.modifiedCount === 0) {
-      return res.status(404).json({ msg: 'Class Not Found' });
+      return res.status(404).json({ msg: 'Question not found or not updated' });
     }
     return res.status(200).json({ msg: 'Successfully Updated' });
   });
@@ -580,15 +584,16 @@ router.get('/:classId/questions/:questionId/responses', [
   });
 });
 
+// todo: test this
 router.get('/:classId/questions/:questionId/responses/:studentId', [
   param('classId').isLength({ min: 1 }),
   param('questionId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
   validate,
 ], (req, res) => {
-  req.db.collection('responses').findOne({ student: req.params.studentId }, (err, result) => {
+  req.db.collection('responses').findOne({ student: ObjectId(req.params.studentId) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    if (!result) return res.status(404).json({ msg: 'Student Not Found' });
+    if (!result) return res.status(404).json({ msg: 'Response Not Found' });
     return res.status(200).json(responseDocToResponse(result));
   });
 });
@@ -600,26 +605,29 @@ router.put('/:classId/questions/:questionId/responses/:studentId', [
   body('timestamp').isISO8601(),
   validate,
 ], (req, res) => {
-  req.db.collection('questions').findOne({ _id: ObjectId(req.body.questionId ) }, (err, result) => {
+  req.db.collection('questions').findOne({ _id: ObjectId(req.params.questionId) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (!result) return res.status(404).json({ msg: 'Question Not Found' });
 
+    let doc = {
+      timestamp: req.body.timestamp,
+      student: req.params.studentId,
+      question: req.params.questionId,
+      'class': req.params.classId,
+    };
     const questionType = result.type;
-    let toSet = { timestamp: req.body.timestamp };
     if (questionType === 'multiple-choice') {
-      toSet.answerNumber = req.body.answerNumber;
+      doc.answerNumber = req.body.answerNumber;
     } else {
-      toSet.answerText = req.body.answerText;
+      doc.answerText = req.body.answerText;
     }
-    
-    req.db.collection('response').updateOne({ student: req.params.studentId }, {
-      $set: toSet
-    }, (err, result) => {
+
+    req.db.collection('responses').insertOne(doc, (err, result) => {
       if (err) return res.status(500).json({ msg: 'Database Error' });
       if (result.modifiedCount === 0) {
-        return res.status(404).json({ msg: 'Student Not Found' });
+        return res.status(404).json({ msg: 'Response Not Found' });
       }
-      return result.status(200).json({ msg: 'Successfully Updated' });
+      return res.status(200).json({ msg: 'Successfully Updated' });
     });
   });
 });
@@ -630,7 +638,7 @@ router.delete('/:classId/questions/:questionId/responses/:studentId', [
   param('studentId').isLength({ min: 1 }),
   validate,
 ], (req, res) => {
-  req.db.collection('responses').deleteOne({ _id: ObjectId(req.params.studentId ) }, (err, result) => {
+  req.db.collection('responses').deleteOne({ _id: ObjectId(req.params.studentId) }, (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if(result.deletedCount === 0) return res.status(404).json({ msg: 'Response Not Found'});
     req.db.collection('responses').updateOne({ _id: ObjectId(req.params.studentId ) }, {
