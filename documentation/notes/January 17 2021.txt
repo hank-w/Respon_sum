@@ -1,0 +1,25 @@
+-Tested endpoints for classes.js
+
+endpoints tested:
+/:classId/active
+/:classId/instructors
+/:classId/instructors/:instructorId
+/:classId/students
+/:classId/students/:studentId
+	to do:
+	/:classId/students/:studentId/performance
+- merged active and current classes into one directory
+
+checked:
+-students
+-instructors
+
+-connected students and instructors to classes and tested
+
+
+to work on:
+-classes.js line 455
+-adding questions to question array, $push, in order to successfully associate question with class and properly delete
+ 
+
+

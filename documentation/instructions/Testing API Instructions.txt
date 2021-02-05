@@ -1,0 +1,13 @@
+go to mongo db under C:\Program Files\MongoDB\Server\"your_version"\bin\mongod.exe
+
+use mongod to start database (mongo start or mongo to see more info/commands)
+
+then cd to the project repo backend folder where node modules is located (npm install if no node modules)
+
+npm start (keep note of port, for me it was 8000)
+
+Open postman and login and click the plus sign to begin sending requests
+
+send requests get, put, post, delete to localhost:8000/
+
+format is body tab -> raw -> select json from dropdown
