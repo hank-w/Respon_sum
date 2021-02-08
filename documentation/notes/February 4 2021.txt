@@ -9,13 +9,6 @@ endpoints tested:
 /classes/{classId}/questions/{questionId}/responses get
 /classes/{classId}/questions/{questionId}/responses/{studentId} get put delete
 
-
-
--connected students and instructors to classes and 
-
-
-to work on:
--Complete 
  
 
 

@@ -1,0 +1,13 @@
+- Complete backend API testing Yay!!! 
+
+endpoints tested:
+/classes/{classId}/questions/{questionId}/viewable-by-studentsGET PUT
+/classes/{classId}/questions/{questionId}/responsesGET
+/classes/{classId}/questions/{questionId}/responses/{studentId}GET PUT DELETE
+
+- Starting Work on Frontend, building using react, installed with Yarn package manager
+
+- Created directory web for web app frontend
+
+TODO:
+- Get Basic React app up and running locally, with layout similar to api.html
