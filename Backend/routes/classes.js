@@ -584,14 +584,18 @@ router.get('/:classId/questions/:questionId/responses', [
   });
 });
 
-// todo: test this
+function getResponseQuery(req) {
+  return { student: req.params.studentId, question: req.params.questionId };
+}
+
+
 router.get('/:classId/questions/:questionId/responses/:studentId', [
   param('classId').isLength({ min: 1 }),
   param('questionId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
   validate,
 ], (req, res) => {
-  req.db.collection('responses').findOne({ student: ObjectId(req.params.studentId) }, (err, result) => {
+  req.db.collection('responses').findOne(getResponseQuery(req), (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
     if (!result) return res.status(404).json({ msg: 'Response Not Found' });
     return res.status(200).json(responseDocToResponse(result));
@@ -617,18 +621,22 @@ router.put('/:classId/questions/:questionId/responses/:studentId', [
     };
     const questionType = result.type;
     if (questionType === 'multiple-choice') {
-      doc.answerNumber = req.body.answerNumber;
+      doc.answer_number = req.body.answerNumber;
     } else {
-      doc.answerText = req.body.answerText;
+      doc.answer_text = req.body.answerText;
     }
 
-    req.db.collection('responses').insertOne(doc, (err, result) => {
-      if (err) return res.status(500).json({ msg: 'Database Error' });
-      if (result.modifiedCount === 0) {
-        return res.status(404).json({ msg: 'Response Not Found' });
-      }
-      return res.status(200).json({ msg: 'Successfully Updated' });
-    });
+    req.db.collection('responses').updateOne(
+      getResponseQuery(req),
+      { $set: doc },
+      { upsert: true },
+      (err, result) => {
+        if (err) return res.status(500).json({ msg: 'Database Error', err });
+        if (result.modifiedCount === 0) {
+          return res.status(404).json({ msg: 'Response Not Found' });
+        }
+        return res.status(200).json({ msg: 'Successfully Updated' });
+      });
   });
 });
 
@@ -638,20 +646,10 @@ router.delete('/:classId/questions/:questionId/responses/:studentId', [
   param('studentId').isLength({ min: 1 }),
   validate,
 ], (req, res) => {
-  req.db.collection('responses').deleteOne({ _id: ObjectId(req.params.studentId) }, (err, result) => {
+  req.db.collection('responses').deleteOne(getResponseQuery(req), (err, result) => {
     if (err) return res.status(500).json({ msg: 'Database Error' });
-    if(result.deletedCount === 0) return res.status(404).json({ msg: 'Response Not Found'});
-    req.db.collection('responses').updateOne({ _id: ObjectId(req.params.studentId ) }, {
-      $pull: {
-        students: req.params.studentId,
-      }
-    }, (err, result) => {
-      if (err) return res.status(500).json({ msg: 'Database Error' });
-      if (result.modifiedCount === 0){
-        return res.status(404).json({ msg: 'Student Not Found'});
-      }
-      return res.status(200).json({ msg: 'Response Successfully Deleted'});
-    });
+    if (result.deletedCount === 0) return res.status(404).json({ msg: 'Response Not Found' });
+    return res.status(200).json({ msg: 'Response Successfully Deleted' });
   });
 });
 
