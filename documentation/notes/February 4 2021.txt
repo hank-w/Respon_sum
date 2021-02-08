@@ -1,0 +1,21 @@
+-Tested endpoints for classes.js
+
+endpoints tested:
+/classes/{classId}/students/{studentId}/performance get
+/classes/{classId}/responses get
+/classes/{classId}/questions get post
+/classes/{classId}/questions/{questionId} get put delete
+/classes/{classId}/questions/{questionId}/viewable-by-students get put
+/classes/{classId}/questions/{questionId}/responses get
+/classes/{classId}/questions/{questionId}/responses/{studentId} get put delete
+
+
+
+-connected students and instructors to classes and 
+
+
+to work on:
+-Complete 
+ 
+
+
