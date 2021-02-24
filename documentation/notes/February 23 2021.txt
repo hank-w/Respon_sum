@@ -1,0 +1,7 @@
+- Started local react project session
+- Connected buttons and textbox in frontend to backend
+- Successfully tested post and get students endpoint
+
+- Working on a cleaner UI/UX design
+- Looking into open source Wix react components
+- Using Figma to plan out design
