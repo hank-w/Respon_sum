@@ -13,3 +13,5 @@ Please reach out via email on GitHub if you would like to see/use a demo of the 
 ![REST API Made With RAML](https://github.com/hank-w/Respon_sum/blob/master/Static/Images/RAML%20API.JPG?raw=true)
 
 ![Node.js with MongoDB](https://github.com/hank-w/Respon_sum/blob/master/Static/Images/Node.js%20code.JPG?raw=true)
+
+![Figma Design Team](https://www.figma.com/file/17mX7z2SnJrVopa0doyfZW/Material-Baseline-Design-Kit-Community?node-id=4%3A0)
