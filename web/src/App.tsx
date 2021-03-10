@@ -25,16 +25,9 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload ayyyyy.
-        </p>
-        <input type="textarea" value={studentId} onChange={e => setStudentId(e.target.value)} />
-        <button onClick={onButtonPress}>GET</button>
-        <input type="textarea" disabled={true} value={JSON.stringify(student)} />
-        <input type="textarea" value={postStudent} onChange={e => setPostStudent(e.target.value)} />
-        <button onClick={onPostButtonPress}>POST</button>
-        <input type="textarea" disabled={true} value={postResult} />
+      <header>
+        <a href="/"><img src={'./logo.svg'} /></a>
+        <a href="/">Responsum</a>
       </header>
     </div>
   );
