@@ -3,6 +3,8 @@ import logo from './logo.svg';
 import './App.css';
 import { Student, ID } from './types/api';
 import { getStudentId, createStudent } from './api/students';
+import { BrowserRouter } from 'react-router-dom';
+
 
 function App() {
   const [studentId, setStudentId] = useState<ID>('');
