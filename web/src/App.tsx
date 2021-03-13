@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import { Student, ID } from './types/api';
 import { getStudentId, createStudent } from './api/students';
 import { BrowserRouter } from 'react-router-dom';
 
+import { Header } from './components/Header';
 
 function App() {
   const [studentId, setStudentId] = useState<ID>('');
@@ -27,10 +27,7 @@ function App() {
 
   return (
     <div className="App">
-      <header>
-        <a href="/"><img src={'./logo.svg'} /></a>
-        <a href="/">Responsum</a>
-      </header>
+      <Header />
     </div>
   );
 }
