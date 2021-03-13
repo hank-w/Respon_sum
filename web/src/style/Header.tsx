@@ -1,5 +1,5 @@
 import styled from 'styled-components'; 
-import logo from '../logo.svg';
+import logo from '../resources/logo.png';
 
 export const HeaderContainer = styled.header`
   display: flex;
@@ -9,8 +9,8 @@ export const HeaderContainer = styled.header`
 `;
 
 export const Logo = styled.img.attrs({src: logo})`
-  width: 100px;
-  height: 100px;
+  height: 70px;
+  margin-right: 10px;
 `;
 
 export const Title = styled.h1`
