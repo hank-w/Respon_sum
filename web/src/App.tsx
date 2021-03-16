@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+
 import './App.css';
 import { Student, ID } from './types/api';
 import { getStudentId, createStudent } from './api/students';
-import { Link, BrowserRouter } from 'react-router-dom';
-
+import Routes from './Routes';
 import { Header } from './components/Header';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
   return (
     <BrowserRouter>
       <Header />
+      <Routes />
     </BrowserRouter>
   );
 }
