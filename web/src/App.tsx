@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './App.css';
 import { Student, ID } from './types/api';
 import { getStudentId, createStudent } from './api/students';
-import { BrowserRouter } from 'react-router-dom';
+import { Link, BrowserRouter } from 'react-router-dom';
 
 import { Header } from './components/Header';
 
@@ -26,9 +26,9 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <BrowserRouter>
       <Header />
-    </div>
+    </BrowserRouter>
   );
 }
 
