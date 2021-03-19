@@ -14,6 +14,5 @@ export const Logo = styled.img.attrs({src: logo})`
 `;
 
 export const Title = styled.h1`
-  border-radius: 30px;
-  border: none;
+  font-size: 3em;
 `;
