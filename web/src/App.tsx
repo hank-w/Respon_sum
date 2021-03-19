@@ -29,7 +29,12 @@ function App() {
   return (
     <BrowserRouter>
       <Header />
-      <Routes />
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+      }}>
+        <Routes />
+      </div>
     </BrowserRouter>
   );
 }
