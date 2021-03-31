@@ -7,7 +7,7 @@ export default () => {
   return (
     <HomepageWrapper>
       <MainButtonContainer>
-        <Link to={STUDENTS_LOGIN_PATH} style={{ width:'100%' }}>
+        <Link to={STUDENTS_LOGIN_PATH} style={{ width: '100%' }}>
           <Button type="primary" size="large" block>
             Students
           </Button>
