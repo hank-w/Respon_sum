@@ -52,7 +52,7 @@ function App() {
             <Routes />
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Responsum Design ©2021 Created by Ryan and Hank</Footer>
+        <Footer style={{ textAlign: 'center' }}>Responsum ©2021 Created by Ryan and Hank</Footer>
       </Layout>
     </BrowserRouter>
   );
