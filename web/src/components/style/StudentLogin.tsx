@@ -1,5 +1,11 @@
 import styled from 'styled-components';
 
+export const StudentLoginParent = styled.div`
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+`;
+
 export const StudentLoginWrapper = styled.div`
   display: flex;
   flex-direction: column;

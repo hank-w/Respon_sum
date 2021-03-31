@@ -1,5 +1,5 @@
 import { Button, Radio } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
+import  { DownloadOutlined } from '@ant-design/icons';
 
 class ButtonSize extends React.Component {
   state = {

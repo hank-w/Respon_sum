@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Button } from 'antd';
 import { HomepageWrapper, MainButton, MainButtonContainer } from '../style/Homepage';
 import { STUDENTS_LOGIN_PATH } from '../../utils/Paths';
 
@@ -6,17 +7,17 @@ export default () => {
   return (
     <HomepageWrapper>
       <MainButtonContainer>
-        <Link to={STUDENTS_LOGIN_PATH}>
-          <MainButton>
+        <Link to={STUDENTS_LOGIN_PATH} style={{ width:'100%' }}>
+          <Button type="primary" size="large" block>
             Students
-          </MainButton>
+          </Button>
         </Link>
-        <MainButton>
+        <Button type="primary" size="large" block>
           Instructors
-        </MainButton>
-        <MainButton>
+        </Button>
+        <Button type="primary" size="large" block>
           Classes  
-        </MainButton>
+        </Button>
       </MainButtonContainer>
     </HomepageWrapper>
   );

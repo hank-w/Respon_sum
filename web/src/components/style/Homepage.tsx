@@ -16,9 +16,10 @@ export const MainButton = styled.button`
 
 export const MainButtonContainer = styled.div`
   display: flex;
+  flex-direction: vertical;
   flex-flow: wrap;
   align-items: center;
   justify-content: space-evenly;
-  width: 70%;
+  width: 25%;
   min-height: 500px;
 `;
