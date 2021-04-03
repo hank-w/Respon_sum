@@ -1,12 +1,10 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
 import { Button } from 'antd';
 import { StudentLoginWrapper, StudentLoginParent } from '../style/StudentLogin';
 import { STUDENTS_PATH } from '../../utils/Paths';
+import { connectUUID, UUIDContextType } from '../../Contexts';
 
-export default () => {
-  const [uuid, setUUID] = useState<string>();
-
+const StudentLogin = ({uuid, setUUID}: UUIDContextType) => {
   return (
     <StudentLoginParent>
       <StudentLoginWrapper>
@@ -26,3 +24,5 @@ export default () => {
     </StudentLoginParent>
   );
 };
+
+export default connectUUID(StudentLogin);
