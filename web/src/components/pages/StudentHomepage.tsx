@@ -32,9 +32,11 @@ export default () => {
         </Menu>
       </Sider>
       <Content style={{ padding: '0 24px', minHeight: 280 }}>
-        {page === 'questions' ? <StudentQuestions /> : null}
-        {page === 'classes' ? <StudentClasses /> : null}
-        {page === 'account' ? <StudentAccountSettings /> : null}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {page === 'questions' ? <StudentQuestions /> : null}
+          {page === 'classes' ? <StudentClasses /> : null}
+          {page === 'account' ? <StudentAccountSettings /> : null}
+        </div>
       </Content>
     </Layout>
   );

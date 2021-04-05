@@ -8,15 +8,16 @@ import './App.css';
 import Logo from './resources/logo.png';
 import Routes from './Routes';
 import { BASE_PATH } from './utils/Paths';
-import { UUIDContext } from './Contexts';
+import { StudentContext } from './Contexts';
+import { Student } from './types/api';
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const [uuid, setUUID] = useState<string>('');
+  const [student, setStudent] = useState<Student | undefined>();
 
   return (
-    <UUIDContext.Provider value={{uuid, setUUID}}>
+    <StudentContext.Provider value={{student, setStudent}}>
       <BrowserRouter>
         <Layout className="layout">
           <Header style={{ display: 'flex', flexDirection: 'row' }}>
@@ -40,7 +41,7 @@ function App() {
           <Footer style={{ textAlign: 'center' }}>Responsum ©2021 Created by Ryan and Hank</Footer>
         </Layout>
       </BrowserRouter>
-    </UUIDContext.Provider>
+    </StudentContext.Provider>
   );
 }
 

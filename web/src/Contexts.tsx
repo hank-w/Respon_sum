@@ -1,17 +1,18 @@
 import { createContext } from 'react';
+import type { Student } from './types/api';
 
-export type UUIDContextType = {
-  uuid: string,
-  setUUID: (uuid: string) => void,
+export type StudentContextType = {
+  student: Student | undefined,
+  setStudent: (student: Student) => void,
 };
 
-export const UUIDContext = createContext({
-  uuid: '',
-  setUUID: (_: string) => {},
+export const StudentContext = createContext<StudentContextType>({
+  student: undefined,
+  setStudent: (_: Student) => {},
 });
 
-export const connectUUID = (Component: React.ElementType<UUIDContextType>) => () => (
-  <UUIDContext.Consumer>
+export const connectStudent = (Component: React.ElementType<StudentContextType>) => () => (
+  <StudentContext.Consumer>
     {ctx => <Component {...ctx} />}
-  </UUIDContext.Consumer>
+  </StudentContext.Consumer>
 );

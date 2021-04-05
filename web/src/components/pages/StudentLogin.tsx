@@ -1,10 +1,28 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { Button } from 'antd';
 import { StudentLoginWrapper, StudentLoginParent } from '../style/StudentLogin';
 import { STUDENTS_PATH } from '../../utils/Paths';
-import { connectUUID, UUIDContextType } from '../../Contexts';
+import { connectStudent, StudentContextType } from '../../Contexts';
+import { getStudentById } from '../../api/students';
 
-const StudentLogin = ({uuid, setUUID}: UUIDContextType) => {
+const StudentLogin = ({student, setStudent}: StudentContextType) => {
+  const [uuid, setUUID] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const onLoginPressed = () => {
+    setLoading(true);
+    getStudentById(uuid)
+    .then(res => {
+      console.log(res);
+      setError(null);
+    })
+    .catch(err => {
+      console.log(err);
+      setError(err?.message+'' || err?.msg+'' || err+'');
+    });
+  };
+
   return (
     <StudentLoginParent>
       <StudentLoginWrapper>
@@ -12,17 +30,16 @@ const StudentLogin = ({uuid, setUUID}: UUIDContextType) => {
           <label>uuid:</label>
           <input type="text" id="uuid" name="uuidLogin" value={uuid} onChange={e => setUUID(e.target.value)} />
         </div>
-        <Link to={STUDENTS_PATH} style={{ width:'100%' }}>
-          <Button type="primary" size="large" block>
-            Login
-          </Button>
-        </Link>
+        <Button type="primary" size="large" block onClick={onLoginPressed} loading={loading}>
+          Login
+        </Button>
         <Button size="large" block>
           Signup
         </Button>
+        <span style={{color:'red'}}>{error}</span>
       </StudentLoginWrapper>
     </StudentLoginParent>
   );
 };
 
-export default connectUUID(StudentLogin);
+export default connectStudent(StudentLogin);
