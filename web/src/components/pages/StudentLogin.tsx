@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button } from 'antd';
 import { StudentLoginWrapper, StudentLoginParent } from '../style/StudentLogin';
 import { STUDENTS_PATH } from '../../utils/Paths';
-import { connectStudent, StudentContextType } from '../../Contexts';
+import { StudentContext } from '../../Contexts';
 import { getStudentById } from '../../api/students';
 
-const StudentLogin = ({student, setStudent}: StudentContextType) => {
+const StudentLogin = () => {
   const [uuid, setUUID] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const {student, setStudent} = useContext(StudentContext);
   const history = useHistory();
 
   const onLoginPressed = () => {
@@ -49,4 +50,4 @@ const StudentLogin = ({student, setStudent}: StudentContextType) => {
   );
 };
 
-export default connectStudent(StudentLogin);
+export default StudentLogin;

@@ -1,11 +1,38 @@
+import { useState, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Button, Space, Input, Form, Typography } from 'antd';
-import { connectStudent, StudentContextType } from '../../Contexts';
+import { StudentContext } from '../../Contexts';
+import { deleteStudentById, putStudentById } from '../../api/students';
+import { STUDENTS_LOGIN_PATH } from '../../utils/Paths';
 
 const { Title } = Typography;
 
-const StudentAccountSettings = ({student, setStudent}: StudentContextType) => {
+const StudentAccountSettings = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const {student, setStudent} = useContext(StudentContext);
+  const history = useHistory();
 
-  
+  if (student === undefined) {
+    return <div>{student+''}</div>;
+  }
+
+  const deleteAccount = () => {
+    setLoading(true);
+    deleteStudentById(student.id)
+    .then(() => {
+      setError(null);
+      setStudent(undefined);
+      history.push(STUDENTS_LOGIN_PATH);
+    })
+    .catch(err => {
+      console.log(err);
+      setError(err?.message+'' || err?.msg+'' || err+'');
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+  };
   
   return (
     <Space direction="vertical" size="large">
@@ -31,10 +58,10 @@ const StudentAccountSettings = ({student, setStudent}: StudentContextType) => {
       </div>
       <div>
         <Title level={2}>Danger Zone</Title>
-        <Button danger>Delete Account</Button>
+        <Button danger loading={loading} onClick={deleteAccount}>Delete Account</Button>
       </div>
     </Space>
   );
 };
 
-export default connectStudent(StudentAccountSettings);
+export default StudentAccountSettings;
