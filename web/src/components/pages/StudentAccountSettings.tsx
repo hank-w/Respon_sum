@@ -1,16 +1,20 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button, Space, Input, Form, Typography } from 'antd';
-import { StudentContext } from '../../Contexts';
 import { deleteStudentById, putStudentById } from '../../api/students';
 import { STUDENTS_LOGIN_PATH } from '../../utils/Paths';
+import { useSelector, useDispatch } from 'react-redux';
+import { Store } from '../../types/store';
+import { Student } from '../../types/api';
+import { setStudent } from '../../utils/Actions';
 
 const { Title } = Typography;
 
 const StudentAccountSettings = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const {student, setStudent} = useContext(StudentContext);
+  const student = useSelector((state: Store) => state.student);
+  const dispatch = useDispatch();
   const history = useHistory();
 
   if (student === undefined) {
@@ -22,7 +26,7 @@ const StudentAccountSettings = () => {
     deleteStudentById(student.id)
     .then(() => {
       setError(null);
-      setStudent(undefined);
+      dispatch(setStudent(undefined));
       history.push(STUDENTS_LOGIN_PATH);
     })
     .catch(err => {

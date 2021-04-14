@@ -1,23 +1,21 @@
 import { useState, createContext } from 'react';
 import { BrowserRouter, Link } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import { Layout, Menu } from 'antd';
-
+import store from './store';
+ 
 import 'antd/dist/antd.css';
 import './App.css';
 
 import Logo from './resources/logo.png';
 import Routes from './Routes';
 import { BASE_PATH } from './utils/Paths';
-import { StudentContext } from './Contexts';
-import { Student } from './types/api';
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const [student, setStudent] = useState<Student | undefined>();
-
   return (
-    <StudentContext.Provider value={{student, setStudent}}>
+    <Provider store={store}>
       <BrowserRouter>
         <Layout className="layout">
           <Header style={{ display: 'flex', flexDirection: 'row' }}>
@@ -41,7 +39,7 @@ function App() {
           <Footer style={{ textAlign: 'center' }}>Responsum ©2021 Created by Ryan and Hank</Footer>
         </Layout>
       </BrowserRouter>
-    </StudentContext.Provider>
+    </Provider>
   );
 }
 

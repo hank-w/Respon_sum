@@ -1,16 +1,17 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { Button } from 'antd';
 import { StudentLoginWrapper, StudentLoginParent } from '../style/StudentLogin';
 import { STUDENTS_PATH } from '../../utils/Paths';
-import { StudentContext } from '../../Contexts';
 import { getStudentById } from '../../api/students';
+import { setStudent } from '../../utils/Actions';
 
 const StudentLogin = () => {
   const [uuid, setUUID] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const {student, setStudent} = useContext(StudentContext);
+  const dispatch = useDispatch();
   const history = useHistory();
 
   const onLoginPressed = () => {
@@ -18,7 +19,7 @@ const StudentLogin = () => {
     getStudentById(uuid)
     .then(res => {
       console.log(res);
-      setStudent(res.body);
+      dispatch(setStudent(res.data));
       setError(null);
       history.push(STUDENTS_PATH);
     })
