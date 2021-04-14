@@ -14,12 +14,29 @@ const StudentAccountSettings = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const student = useSelector((state: Store) => state.student);
+  const [updatingStudent, setUpdatingStudent] = useState(student);
   const dispatch = useDispatch();
   const history = useHistory();
 
   if (student === undefined) {
-    return <div>{student+''}</div>;
+    return <>You're not logged in!</>;
   }
+
+  const updateAccount = () => {
+    setLoading(true);
+    putStudentById(student.id, (updatingStudent as Student))
+    .then(() => {
+      setError(null);
+      dispatch(setStudent(updatingStudent));
+    })
+    .catch(err => {
+      console.log(err);
+      setError(err?.message+'' || err?.msg+'' || err+'');
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+  };
 
   const deleteAccount = () => {
     setLoading(true);
@@ -38,22 +55,28 @@ const StudentAccountSettings = () => {
     });
   };
   
+  const u = (updatingStudent as Student);
   return (
     <Space direction="vertical" size="large">
       <div>
         <Title level={2}>Update Account Info</Title>
-        <Form>
+        <span style={{color:'red'}}>{error}</span>
+        <Form onFinish={updateAccount}>
           <Form.Item label="Name" required>
-            <Input placeholder="Name" />
+            <Input placeholder="Name" value={u.name}
+              onChange={e => setUpdatingStudent({...u, name: e.target.value})} />
           </Form.Item>
-          <Form.Item label="Email" required>
-            <Input placeholder="Email" />
+          <Form.Item label="Email" required >
+            <Input placeholder="Email" value={u.email} 
+              onChange={e => setUpdatingStudent({...u, email: e.target.value})} />
           </Form.Item>
           <Form.Item label="Student Number" required>
-            <Input placeholder="Student Number" />
+            <Input placeholder="Student Number" value={u.studentNumber}
+              onChange={e => setUpdatingStudent({...u, studentNumber: e.target.value})} />
           </Form.Item> 
           <Form.Item label="Institution" required>
-            <Input placeholder="Institution" />
+            <Input placeholder="Institution" value={u.institution}
+              onChange={e => setUpdatingStudent({...u, institution: e.target.value})}/>
           </Form.Item>
           <Button type="primary" htmlType="submit">
             Update

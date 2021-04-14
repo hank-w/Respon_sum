@@ -18,7 +18,6 @@ const StudentLogin = () => {
     setLoading(true);
     getStudentById(uuid)
     .then(res => {
-      console.log(res);
       dispatch(setStudent(res.data));
       setError(null);
       history.push(STUDENTS_PATH);
