@@ -8,9 +8,9 @@ export type Stats = {
 
 export type Student = {
   id: ID,
-  name?: string,
-  email?: string,
-  studentNumber?: string,
-  institution?: string,
+  name: string,
+  email: string,
+  studentNumber: string,
+  institution: string,
   performance?: Stats,
 };

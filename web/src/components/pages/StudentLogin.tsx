@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Button } from 'antd';
 import { StudentLoginWrapper, StudentLoginParent } from '../style/StudentLogin';
-import { STUDENTS_PATH } from '../../utils/Paths';
+import { STUDENTS_PATH, STUDENTS_SIGNUP_PATH } from '../../utils/Paths';
 import { getStudentById } from '../../api/students';
 import { setStudent } from '../../utils/Actions';
 
@@ -31,6 +31,10 @@ const StudentLogin = () => {
     });
   };
 
+  const onSignupPressed = () => {
+    history.push(STUDENTS_SIGNUP_PATH);
+  };
+
   return (
     <StudentLoginParent>
       <StudentLoginWrapper>
@@ -41,7 +45,7 @@ const StudentLogin = () => {
         <Button type="primary" size="large" block onClick={onLoginPressed} loading={loading}>
           Login
         </Button>
-        <Button size="large" block>
+        <Button size="large" block onClick={onSignupPressed}>
           Signup
         </Button>
         <span style={{color:'red'}}>{error}</span>
