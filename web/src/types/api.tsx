@@ -14,3 +14,11 @@ export type Student = {
   institution: string,
   performance?: Stats,
 };
+
+export type Class = {
+  id: ID,
+  name: string,
+  active: boolean,
+  institution: string,
+  instructorIds?: string[],
+};

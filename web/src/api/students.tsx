@@ -18,3 +18,7 @@ export const deleteStudentById = async (id: ID): Promise<any> => {
 export const createStudent = async (student: Student): Promise<any> => {
   return axios.post(`http://${BASE_URL}/students`, student);
 };
+
+export const getClassesByStudentId = async (id: ID): Promise<any> => {
+  return axios.get(`http://${BASE_URL}/students/${id}/classes`);
+};
