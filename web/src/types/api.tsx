@@ -22,3 +22,18 @@ export type Class = {
   institution: string,
   instructorIds?: string[],
 };
+
+export type Question = {
+  id: string,
+  asked: number,
+  timestamps: {
+    started: string,
+    stopped: string,
+  }[],
+  stats?: Stats[],
+  questionText?: string,
+  type: 'multiple-choice' | 'short-answer',
+  numAnswers?: number,
+  correctAnswer?: number | string,
+  answerText?: string[],
+};

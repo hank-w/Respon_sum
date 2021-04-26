@@ -92,7 +92,7 @@ export default () => {
         {loadingYourClasses ? 'Loading...' : null}
         {yourClasses.map(clazz => (
           <ClassView clazz={clazz} key={clazz.id}>
-            <Button type="primary" size="large"
+            <Button type="primary" size="large" danger
                 onClick={() => leaveClass(clazz)} loading={loadingLeaveClass}>
               Leave class
             </Button>

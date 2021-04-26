@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Layout, Menu } from 'antd';
 import { UserOutlined, QuestionCircleOutlined, BookOutlined } from '@ant-design/icons';
 
-import StudentQuestions from './StudentQuestions';
+import StudentQuestionsHome from './StudentQuestionsHome';
 import StudentAccountSettings from './StudentAccountSettings';
 import StudentClasses from './StudentClasses';
 
@@ -33,7 +33,7 @@ export default () => {
       </Sider>
       <Content style={{ padding: '0 24px', minHeight: 280 }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {page === 'questions' ? <StudentQuestions /> : null}
+          {page === 'questions' ? <StudentQuestionsHome /> : null}
           {page === 'classes' ? <StudentClasses /> : null}
           {page === 'account' ? <StudentAccountSettings /> : null}
         </div>
