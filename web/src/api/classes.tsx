@@ -7,6 +7,11 @@ export const addStudentToClass = async (id: ID, clazz: Class): Promise<any> => {
   return axios.put(`http://${BASE_URL}/classes/${clazz.id}/students/${id}`);
 };
 
+export const removeStudentFromClass = async (id: ID, clazz: Class): Promise<any> => {
+  return axios.delete(`http://${BASE_URL}/classes/${clazz.id}/students/${id}`);
+};
+
 export const getAllClasses = async (): Promise<any> => {
-    return axios.get(`http://${BASE_URL}/classes`);
-}
+  return axios.get(`http://${BASE_URL}/classes`);
+};
+
