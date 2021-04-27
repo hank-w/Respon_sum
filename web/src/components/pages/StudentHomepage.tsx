@@ -7,7 +7,7 @@ import StudentAccountSettings from './StudentAccountSettings';
 import StudentClasses from './StudentClasses';
 
 const { Content, Sider } = Layout;
-
+ 
 export default () => {
   const [ page, setPage ] = useState('questions');
 
