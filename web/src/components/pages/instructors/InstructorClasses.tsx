@@ -1,3 +1,3 @@
 export default () => {
-    return <>Hello</>
+    return <>(^._.^) (o.o )</>
   };
