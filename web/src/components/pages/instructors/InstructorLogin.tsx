@@ -4,10 +4,10 @@ import { useDispatch } from 'react-redux';
 import { Button } from 'antd';
 import { StudentLoginWrapper, StudentLoginParent } from '../../style/StudentLogin';
 import { INSTRUCTORS_PATH, INSTRUCTORS_SIGNUP_PATH } from '../../../utils/Paths';
-import { getStudentById } from '../../../api/students';
-import { setStudent } from '../../../utils/Actions';
+import { getInstructorById } from '../../../api/instructors';
+import { setInstructor } from '../../../utils/Actions';
 
-const StudentLogin = () => {
+const InstructorLogin = () => {
   const [uuid, setUUID] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,9 +16,9 @@ const StudentLogin = () => {
 
   const onLoginPressed = () => {
     setLoading(true);
-    getStudentById(uuid)
+    getInstructorById(uuid)
     .then(res => {
-      dispatch(setStudent(res.data));
+      dispatch(setInstructor(res.data));
       setError(null);
       history.push(INSTRUCTORS_PATH);
     })
@@ -54,4 +54,4 @@ const StudentLogin = () => {
   );
 };
 
-export default StudentLogin;
+export default InstructorLogin;
