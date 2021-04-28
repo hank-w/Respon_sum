@@ -13,7 +13,6 @@ const DEFAULT_STUDENT: Instructor = {
   id: '',
   name: '',
   email: '',
-  studentNumber: '',
   institution: '',
 };
 
@@ -59,10 +58,6 @@ const InstructorSignup = () => {
             <Input placeholder="jsmith@awesome.edu" value={s.email} 
               onChange={e => setCreatingInstructor({...s, email: e.target.value})} />
           </Form.Item>
-          <Form.Item label="Instructor Number" required>
-            <Input placeholder="13377331" value={s.studentNumber}
-              onChange={e => setCreatingInstructor({...s, studentNumber: e.target.value})} />
-          </Form.Item> 
           <Form.Item label="Institution" required>
             <Input placeholder="University of Awesome" value={s.institution}
               onChange={e => setCreatingInstructor({...s, institution: e.target.value})}/>
