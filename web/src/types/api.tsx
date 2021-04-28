@@ -15,6 +15,13 @@ export type Student = {
   performance?: Stats,
 };
 
+export type Instructor = {
+  id: ID,
+  name: string,
+  email: string,
+  institution: string
+}
+
 export type Class = {
   id: ID,
   name: string,
