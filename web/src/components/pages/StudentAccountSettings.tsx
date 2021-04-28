@@ -13,6 +13,7 @@ const { Title } = Typography;
 const StudentAccountSettings = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const student = useSelector((state: Store) => state.student);
   const [updatingStudent, setUpdatingStudent] = useState(student);
   const dispatch = useDispatch();
@@ -27,10 +28,12 @@ const StudentAccountSettings = () => {
     putStudentById(student.id, (updatingStudent as Student))
     .then(() => {
       setError(null);
+      setSuccess('Successfully Updated Account!');
       dispatch(setStudent(updatingStudent));
     })
     .catch(err => {
       console.log(err);
+      setSuccess(null);
       setError(err?.message+'' || err?.msg+'' || err+'');
     })
     .finally(() => {
@@ -61,6 +64,7 @@ const StudentAccountSettings = () => {
       <div>
         <Title level={2}>Update Account Info</Title>
         <span style={{color:'red'}}>{error}</span>
+        <span style={{color:'black'}}>{success}</span>
         <Form onFinish={updateAccount}>
           <Form.Item label="Name" required>
             <Input placeholder="Name" value={u.name}
