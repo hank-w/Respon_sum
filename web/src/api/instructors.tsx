@@ -7,14 +7,14 @@ export const getInstructorById = async (id: ID): Promise<any> => {
   return axios.get(`http://${BASE_URL}/instructors/${id}`);
 };
 
-export const putStudentById = async (id: ID, instructor: Instructor): Promise<any> => {
-    return axios.put(`http://${BASE_URL}/students/${id}`, instructor);
+export const putInstructorById = async (id: ID, instructor: Instructor): Promise<any> => {
+    return axios.put(`http://${BASE_URL}/instructors/${id}`, instructor);
   };
   
-  export const deleteStudentById = async (id: ID): Promise<any> => {
-    return axios.delete(`http://${BASE_URL}/students/${id}`);
+  export const deleteInstructorById = async (id: ID): Promise<any> => {
+    return axios.delete(`http://${BASE_URL}/instructors/${id}`);
   };
   
-  export const createStudent = async (instructor: Instructor): Promise<any> => {
-    return axios.post(`http://${BASE_URL}/students`, instructor);
+  export const createInstructor = async (instructor: Instructor): Promise<any> => {
+    return axios.post(`http://${BASE_URL}/instructors`, instructor);
   };
