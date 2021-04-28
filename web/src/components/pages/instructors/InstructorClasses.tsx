@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Space, Typography, Button } from 'antd';
-import { getClassesByStudentId } from '../../api/students';
-import { addStudentToClass, removeStudentFromClass, getAllClasses } from '../../api/classes';
-import { Class } from '../../types/api';
-import { Store } from '../../types/store';
+import { getClassesByInstructorId } from '../../../api/instructors';
+import { addInstructorToClass, removeInstructorFromClass, getAllClasses } from '../../../api/classes';
+import { Class } from '../../../types/api';
+import { Store } from '../../../types/store';
 
-import ClassView from '../ClassView';
+import ClassView from '../../ClassView';
 
 const { Title } = Typography;
 
@@ -18,15 +18,15 @@ export default () => {
   const [loadingJoinClass, setLoadingJoinClass] = useState(false);
   const [loadingLeaveClass, setLoadingLeaveClass] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const student = useSelector((state: Store) => state.student);
+  const instructor = useSelector((state: Store) => state.instructor);
 
-  if (student === undefined) {
+  if (instructor === undefined) {
     return <>You're not logged in!</>;
   }
 
   const refreshClasses = useCallback(() => {
     setLoadingYourClasses(true);
-    getClassesByStudentId(student.id)
+    getClassesByInstructorId(instructor.id)
     .then(res => {
       setYourClasses(res.data);
       setError(null);
@@ -50,13 +50,13 @@ export default () => {
     .finally(() => {
       setLoadingAllClasses(false);
     });
-  }, [student]);
+  }, [instructor]);
 
   useEffect(refreshClasses, []);
 
   const joinClass = (clazz: Class) => {
     setLoadingJoinClass(true);
-    addStudentToClass(student.id, clazz)
+    addInstructorToClass(instructor.id, clazz)
     .then(() => {
       refreshClasses();
     })
@@ -70,7 +70,7 @@ export default () => {
 
   const leaveClass = (clazz: Class) => {
     setLoadingLeaveClass(false);
-    removeStudentFromClass(student.id, clazz)
+    removeInstructorFromClass(instructor.id, clazz)
     .then(() => {
       refreshClasses();
     })

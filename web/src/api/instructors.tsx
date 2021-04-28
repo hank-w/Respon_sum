@@ -18,3 +18,7 @@ export const putInstructorById = async (id: ID, instructor: Instructor): Promise
   export const createInstructor = async (instructor: Instructor): Promise<any> => {
     return axios.post(`http://${BASE_URL}/instructors`, instructor);
   };
+  
+  export const getClassesByInstructorId = async (id: ID): Promise<any> => {
+    return axios.get(`http://${BASE_URL}/instructors/${id}/classes`);
+  };
