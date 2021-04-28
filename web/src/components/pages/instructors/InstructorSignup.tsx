@@ -9,7 +9,7 @@ import { setInstructor } from '../../../utils/Actions';
 
 const { Title } = Typography;
 
-const DEFAULT_STUDENT: Instructor = {
+const DEFAULT_INSTRUCTOR: Instructor = {
   id: '',
   name: '',
   email: '',
@@ -19,7 +19,7 @@ const DEFAULT_STUDENT: Instructor = {
 const InstructorSignup = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [creatingInstructor, setCreatingInstructor] = useState(DEFAULT_STUDENT);
+  const [creatingInstructor, setCreatingInstructor] = useState(DEFAULT_INSTRUCTOR);
   const dispatch = useDispatch();
   const history = useHistory();
 
