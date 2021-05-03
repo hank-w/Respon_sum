@@ -18,41 +18,7 @@ export default () => {
   const [loadingJoinClass, setLoadingJoinClass] = useState(false);
   const [loadingDeleteClass, setLoadingDeleteClass] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const instructor = useSelector((state: Store) => state.instructor);
 
-  if (instructor === undefined) {
-    return <>You're not logged in!</>;
-  }
-
-  const refreshClasses = useCallback(() => {
-    setLoadingYourClasses(true);
-    getClassesByInstructorId(instructor.id)
-    .then(res => {
-      setYourClasses(res.data);
-      setError(null);
-    })
-    .catch(err => {
-      setError(err+'');
-    })
-    .finally(() => {
-      setLoadingYourClasses(false);
-    });
-
-    setLoadingAllClasses(true);
-    getAllClasses()
-    .then(res => {
-      setAllClasses(res.data);
-      setError(null);
-    })
-    .catch(err => {
-      setError(err+'');
-    })
-    .finally(() => {
-      setLoadingAllClasses(false);
-    });
-  }, [instructor]);
-
-  useEffect(refreshClasses, []);
 
 
   const alreadyJoined = (clazz: Class) => yourClasses.some(c => c.id == clazz.id);

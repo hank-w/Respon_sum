@@ -27,7 +27,8 @@
     "redux": "^4.0.5",
     "styled-components": "^5.2.1",
     "typescript": "^4.1.5",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "websocket": "^1.0.34"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -52,5 +53,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/websocket": "^1.0.2"
   }
 }
