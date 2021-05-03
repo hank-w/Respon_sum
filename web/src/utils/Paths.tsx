@@ -7,3 +7,4 @@ export const STUDENT_CLASSES_PATH = '/students/classes';
 export const INSTRUCTORS_PATH = '/instructors';
 export const INSTRUCTORS_LOGIN_PATH = '/instructors/login';
 export const INSTRUCTORS_SIGNUP_PATH = '/instructors/signup';
+export const CLASSES_PATH = '/classes';

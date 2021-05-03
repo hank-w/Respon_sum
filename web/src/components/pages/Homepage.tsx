@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from 'antd';
 import { HomepageWrapper, MainButton, MainButtonContainer } from '../style/Homepage';
-import { STUDENTS_LOGIN_PATH, INSTRUCTORS_LOGIN_PATH } from '../../utils/Paths';
+import { STUDENTS_LOGIN_PATH, INSTRUCTORS_LOGIN_PATH, CLASSES_PATH } from '../../utils/Paths';
 
 export default () => {
   return (
@@ -17,9 +17,11 @@ export default () => {
           Instructors
         </Button>
         </Link>
+        <Link to={CLASSES_PATH} style={{ width: '100%'}}>
         <Button type="primary" size="large" block>
           Classes  
         </Button>
+        </Link>
       </MainButtonContainer>
     </HomepageWrapper>
   );

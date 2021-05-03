@@ -54,33 +54,6 @@ export default () => {
 
   useEffect(refreshClasses, []);
 
-  const joinClass = (clazz: Class) => {
-    setLoadingJoinClass(true);
-    addInstructorToClass(instructor.id, clazz)
-    .then(() => {
-      refreshClasses();
-    })
-    .catch(err => {
-      setError(err+'');
-    })
-    .finally(() => {
-      setLoadingJoinClass(false);
-    });
-  };
-
-  const leaveClass = (clazz: Class) => {
-    setLoadingDeleteClass(false);
-    removeInstructorFromClass(instructor.id, clazz)
-    .then(() => {
-      refreshClasses();
-    })
-    .catch(err => {
-      setError(err+'');
-    })
-    .finally(() => {
-      setLoadingDeleteClass(false);
-    });
-  };
 
   const alreadyJoined = (clazz: Class) => yourClasses.some(c => c.id == clazz.id);
   const canJoinClass = (clazz: Class) => clazz.active && !alreadyJoined(clazz);
@@ -88,27 +61,15 @@ export default () => {
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <div>
-        <Title level={2}>Your Classes</Title>
-        {loadingYourClasses ? 'Loading...' : null}
-        {yourClasses.map(clazz => (
-          <ClassView clazz={clazz} key={clazz.id}>
-            <Button type="primary" size="large" danger
-                onClick={() => leaveClass(clazz)} loading={loadingDeleteClass}>
-              Delete class
-            </Button>
-          </ClassView>
-        ))}
-      </div>
-      <div>
         <Title level={2}>All Classes</Title>
         {loadingAllClasses ? 'Loading...' : null}
         {allClasses.map(clazz => (
           <ClassView clazz={clazz} key={clazz.id}>
             <Button type="primary" size="large" disabled={!canJoinClass(clazz)}
-                onClick={() => joinClass(clazz)} loading={loadingJoinClass}>
+             loading={loadingJoinClass}>
               {
-                canJoinClass(clazz) ? 'Enroll in class' : (
-                  alreadyJoined(clazz) ? 'Already joined' : 'Not active'
+                canJoinClass(clazz) ? 'Active' : (
+                  alreadyJoined(clazz) ? 'Active' : 'Not active'
                 )
               }
             </Button>

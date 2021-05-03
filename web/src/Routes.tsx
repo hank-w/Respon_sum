@@ -7,6 +7,7 @@ import StudentQuestionsStream from './components/pages/StudentQuestionsStream';
 import InstructorLoginPage from './components/pages/instructors/InstructorLogin';
 import InstructorSignupPage from './components/pages/instructors/InstructorSignup';
 import InstructorHomepage from './components/pages/instructors/InstructorHomepage';
+import ClassHomepage from './components/pages/classes/ClassHomepage';
 
 import {
   BASE_PATH,
@@ -16,7 +17,8 @@ import {
   STUDENTS_QUESTIONS_PATH,
   INSTRUCTORS_LOGIN_PATH,
   INSTRUCTORS_SIGNUP_PATH,
-  INSTRUCTORS_PATH
+  INSTRUCTORS_PATH,
+  CLASSES_PATH
 } from './utils/Paths';
 
 export default () => (
@@ -44,6 +46,9 @@ export default () => (
     </Route>
     <Route exact path={INSTRUCTORS_PATH}>
       <InstructorHomepage />
+    </Route>
+    <Route exact path={CLASSES_PATH}>
+      <ClassHomepage />
     </Route>
   </Switch>
 );
