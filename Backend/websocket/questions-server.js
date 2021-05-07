@@ -29,4 +29,17 @@ wsServer.on('request', request => {
   const connection = request.accept(QUESTION_PROTOCOL, request.origin);
   console.log((new Date()) + ' Connection accepted.');
   connection.send(JSON.stringify(testQuestion));
+
+  const interval = setInterval(() => {
+    if (connection.isAlive === false) return connection.close();
+    connection.isAlive = false;
+    connection.ping();
+  }, 10000);
+
+  connection.on('close', () => clearInterval(interval));
+  connection.on('pong', () => {
+    connection.isAlive = true;
+  });
 });
+
+module.exports.wsServer = wsServer;
