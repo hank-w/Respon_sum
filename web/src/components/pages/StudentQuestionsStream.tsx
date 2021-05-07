@@ -5,7 +5,7 @@ import { Store } from '../../types/store';
 import { Question } from '../../types/api';
 import { streamQuestions } from '../../api/websocket/client';
 import { QUESTION_WEBSOCKET_URL } from '../../api/api';
-import QuestionView  from '../question/QuestionView';
+import QuestionView from '../question/QuestionView';
 
 export default () => {
   const student = useSelector((state: Store) => state.student);
@@ -14,7 +14,7 @@ export default () => {
   const { classId } = useParams<any>();
 
   useEffect(() => streamQuestions({
-    url: QUESTION_WEBSOCKET_URL,
+    url: QUESTION_WEBSOCKET_URL + '?classId=' + classId,
     onReceive: (question: Question) => {
       setQuestion(question);
       setError(null);
@@ -31,17 +31,6 @@ export default () => {
   if (student === undefined) {
     return <>You're not logged in!</>;
   }
-
-  // const question: Question = {
-  //   id: '608769775c67673520670998',
-  //   asked: 0,
-  //   timestamps: [],
-  //   type: 'short-answer',
-  //   questionText: 'What is the meaning of life?',
-  //   // numAnswers: 4,
-  //   // answerText: ['42', '24', '420', 'not 42'],
-  //   correctAnswer: 'foo',
-  // };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>

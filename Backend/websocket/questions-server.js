@@ -1,19 +1,23 @@
 const express = require('express');
+const { ObjectId } = require('mongodb');
+const url = require('url');
+const { questionDocToResponse } = require('../routes/get-questions');
 
 const router = express.Router();
 
-const QUESTION_PROTOCOL = 'questions-streaming';
+router.ws('/questions', (ws, req) => {
+  const classId = req.query.classId;
 
-const testQuestion = {
-  type: 'multiple-choice',
-  numAnswers: 3,
-  correctAnswer: 3,
-  questionText: 'Which will last the longest?',
-  answerText: ['GME > $420.69', 'lockdown', 'shutdown']
-};
-
-router.ws('/questions', ws => {
-  ws.send(JSON.stringify(testQuestion));
+  req.db.collection('classes').findOne({ _id: ObjectId(classId) }, (err, cls) => {
+    if (err) return console.log('Database Error');
+    if (!cls) return console.log('Class Stream Not Found');
+    ws.classId = classId;
+    if (cls.active_question == null) return console.log('No Active Question');
+    req.db.collection('questions').findOne({ _id: ObjectId(cls.active_question) }, (err, question) => {
+      if (err) return console.log('Database Error Getting Question');
+      ws.send(JSON.stringify(questionDocToResponse(question)));
+    });
+  });
 
   const interval = setInterval(() => {
     if (ws.isAlive === false) return ws.terminate();

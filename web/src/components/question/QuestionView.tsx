@@ -13,7 +13,6 @@ export default ({
 }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div>{JSON.stringify(question)}</div>
       {question.questionText ? (
         <Title>
           {question.questionText}

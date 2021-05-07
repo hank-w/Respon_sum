@@ -62,7 +62,9 @@ router.post('/:classId/questions/:questionId/ask', (req, res) => {
           }
 
           expressWs.getWss().clients.forEach(client => {
-            client.send(JSON.stringify(questionDocToResponse(question)));
+            if (client.classId+'' === req.params.classId+'') {
+              client.send(JSON.stringify(questionDocToResponse(question)));
+            }
           });
           res.status(200).json({ msg: 'OK' });
         });
