@@ -1,5 +1,5 @@
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
-import { QUESTION_PROTOCOL, WEBSOCKET_URL } from '../api';
+import { QUESTION_PROTOCOL, QUESTION_WEBSOCKET_URL } from '../api';
 import { Question } from '../../types/api';
 
 export type CloseFunction = () => void;
@@ -29,4 +29,3 @@ export const streamQuestions = ({
   }
   return () => client.close(1000);
 };
-

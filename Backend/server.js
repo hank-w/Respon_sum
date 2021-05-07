@@ -1,9 +1,12 @@
 const express = require('express');
 const app = express();
+const expressWs = require('express-ws')(app);
 
 const students = require('./routes/students.js');
 const instructors = require('./routes/instructors.js');
 const classes = require('./routes/classes.js');
+
+const questionsWs = require('./websocket/questions-server.js');
 
 const uri = 'mongodb://localhost';
 const dbName = 'test';
@@ -42,6 +45,7 @@ app.use(express.json());
 app.use('/students', students);
 app.use('/instructors', instructors);
 app.use('/classes', classes);
+app.use('/questions-stream', questionsWs);
 
 app.listen(8000, () => {
   console.log('Responsum listening on port 8000');

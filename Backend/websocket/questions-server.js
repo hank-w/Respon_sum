@@ -1,4 +1,6 @@
-var WebSocketServer = require('websocket').server;
+const express = require('express');
+
+const router = express.Router();
 
 const QUESTION_PROTOCOL = 'questions-streaming';
 
@@ -6,27 +8,12 @@ const testQuestion = {
   type: 'multiple-choice',
   numAnswers: 3,
   correctAnswer: 3,
-  answerTexts: ['GME', 'lockdown', 'shutdown']
+  questionText: 'Which will last the longest?',
+  answerText: ['GME > $420.69', 'lockdown', 'shutdown']
 };
 
-const wsServer = new WebSocketServer({
-  httpServer: server,
-  autoAcceptConnections: false,
+router.ws('/questions', (ws, req) => {
+  ws.send(JSON.stringify(testQuestion));
 });
 
-function originIsAllowed(origin) {
-  // shh... O_O
-  return true;
-}
-
-wsServer.on('request', request => {
-  if (!originIsAllowed(request.origin)) {
-    request.reject();
-    console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
-    return;
-  }
-
-  const connection = request.accept(QUESTION_PROTOCOL, request.origin);
-  console.log((new Date()) + ' Connection accepted.');
-  connection.send(JSON.stringify(testQuestion));
-});
+module.exports = router;
