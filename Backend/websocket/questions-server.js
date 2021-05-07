@@ -12,8 +12,17 @@ const testQuestion = {
   answerText: ['GME > $420.69', 'lockdown', 'shutdown']
 };
 
-router.ws('/questions', (ws, req) => {
+router.ws('/questions', ws => {
   ws.send(JSON.stringify(testQuestion));
-});
 
-module.exports = router;
+  const interval = setInterval(() => {
+    if (ws.isAlive === false) return ws.terminate();
+    ws.isAlive = false;
+    ws.ping();
+  }, 10000);
+
+  ws.on('close', () => clearInterval(interval));
+  ws.on('pong', () => {
+    ws.isAlive = true;
+  });
+});

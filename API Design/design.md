@@ -126,6 +126,7 @@ Class:
   questions: [ question ids ]
   responses: [ response ids ]
   aggregate_stats: Stats
+  active_question: question UUID | null
 }
 
 Question:

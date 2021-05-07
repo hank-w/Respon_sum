@@ -1,10 +1,11 @@
 const express = require('express');
 const app = express();
-const expressWs = require('express-ws')(app);
+require('./websocket/express-ws.js').setup(app);
 
 const students = require('./routes/students.js');
 const instructors = require('./routes/instructors.js');
 const classes = require('./routes/classes.js');
+const askQuestions = require('./routes/ask-questions.js');
 
 const questionsWs = require('./websocket/questions-server.js');
 
@@ -46,6 +47,7 @@ app.use('/students', students);
 app.use('/instructors', instructors);
 app.use('/classes', classes);
 app.use('/questions-stream', questionsWs);
+app.use('/classes', askQuestions);
 
 app.listen(8000, () => {
   console.log('Responsum listening on port 8000');
