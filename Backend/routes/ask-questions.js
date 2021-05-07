@@ -1,6 +1,6 @@
 const { ObjectId } = require('mongodb');
 const express = require('express');
-const { body, param } = require('express-validator');
+const { questionDocToResponse } = require('./get-questions.js');
 const { expressWs } = require('../websocket/express-ws.js');
 
 const router = express.Router();
@@ -62,8 +62,9 @@ router.post('/:classId/questions/:questionId/ask', (req, res) => {
           }
 
           expressWs.getWss().clients.forEach(client => {
-            client.send(question);
+            client.send(JSON.stringify(questionDocToResponse(question)));
           });
+          res.status(200).json({ msg: 'OK' });
         });
       });
     });

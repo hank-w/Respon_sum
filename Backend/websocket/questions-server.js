@@ -26,3 +26,5 @@ router.ws('/questions', ws => {
     ws.isAlive = true;
   });
 });
+
+module.exports = router;

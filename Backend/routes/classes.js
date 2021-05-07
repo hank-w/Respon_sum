@@ -429,7 +429,7 @@ router.post('/:classId/questions', [
   const doc = {
     'class': req.params.classId,
     type: req.body.type,
-    asked: false,
+    asked: 0,
     timestamps: [],
     responses: [],
     viewable_by_students: false,
