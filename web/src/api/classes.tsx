@@ -1,5 +1,6 @@
 import 'axios';
 import axios from 'axios';
+import { createClassifier } from 'typescript';
 import {ID, Class} from '../types/api'
 import { BASE_URL } from './api';
 
@@ -21,5 +22,9 @@ export const removeInstructorFromClass = async (id: ID, clazz: Class): Promise<a
 
 export const getAllClasses = async (): Promise<any> => {
   return axios.get(`http://${BASE_URL}/classes`);
+};
+
+export const createClass = async (clazz: Class): Promise<any> => {
+  return axios.post(`http://${BASE_URL}/classes`, clazz);
 };
 
