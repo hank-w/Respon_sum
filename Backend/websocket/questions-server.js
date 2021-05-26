@@ -18,13 +18,13 @@ router.ws('/questions', (ws, req) => {
       ws.send(JSON.stringify(questionDocToResponse(question)));
     });
   });
-
+// Send Ping from server to client
   const interval = setInterval(() => {
     if (ws.isAlive === false) return ws.terminate();
     ws.isAlive = false;
     ws.ping();
   }, 10000);
-
+// Check if Received Pong from client to server, if not close websocket
   ws.on('close', () => clearInterval(interval));
   ws.on('pong', () => {
     ws.isAlive = true;
