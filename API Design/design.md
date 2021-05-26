@@ -3,6 +3,7 @@
 ## Tech stack
 
 MERN (MongoDB, Express, React, Node.js).
+Using Postman for testing and Antd design package.
 
 ## Preserving locality (prevent answering from remote locations)
 
