@@ -606,7 +606,6 @@ router.put('/:classId/questions/:questionId/responses/:studentId', [
   param('classId').isLength({ min: 1 }),
   param('questionId').isLength({ min: 1 }),
   param('studentId').isLength({ min: 1 }),
-  body('timestamp').isISO8601(),
   validate,
 ], (req, res) => {
   req.db.collection('questions').findOne({ _id: ObjectId(req.params.questionId) }, (err, result) => {
@@ -614,7 +613,7 @@ router.put('/:classId/questions/:questionId/responses/:studentId', [
     if (!result) return res.status(404).json({ msg: 'Question Not Found' });
 
     let doc = {
-      timestamp: req.body.timestamp,
+      timestamp: Date.now(),
       student: req.params.studentId,
       question: req.params.questionId,
       'class': req.params.classId,

@@ -1,7 +1,6 @@
 import 'axios';
 import axios from 'axios';
-import { createClassifier } from 'typescript';
-import {ID, Class} from '../types/api'
+import { ID, Class, Response, Question } from '../types/api';
 import { BASE_URL } from './api';
 
 export const addStudentToClass = async (id: ID, clazz: Class): Promise<any> => {
@@ -28,3 +27,6 @@ export const createClass = async (clazz: Class): Promise<any> => {
   return axios.post(`http://${BASE_URL}/classes`, clazz);
 };
 
+export const createResponseToQuestion = async (id: ID, classId: ID, question: Question, response: Response): Promise<any> => {
+  return axios.put(`http://${BASE_URL}/classes/${classId}/questions/${question.id}/responses/${id}`, response);
+};

@@ -44,3 +44,5 @@ export type Question = {
   correctAnswer?: number | string,
   answerText?: string[],
 };
+
+export type Response = {answerText: string} | {answerNumber: number};
